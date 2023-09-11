@@ -2,7 +2,7 @@ from outline.api_client import send_request
 import json
 
 
-def delete_key(key_id):
+async def delete_key(key_id):
     send_request(method='DELETE', path=f'access-keys/{key_id}/')
 
 
