@@ -14,20 +14,23 @@ async def add_key(message: types.Message, state: FSMContext):
     await message.answer(text='WELCOME MESSAGE')
 
 
-def decorator(func):
+def check_admin_rights(func):
     async def wrapper(message: types.Message):
-        if message.from_user.id==os.environ.get('tg_my_id'):
+        if str(message.from_user.id) == str(os.environ.get('my_chat_id')):
             print('Функция-обёртка!')
             print('Оборачиваемая функция: {}'.format(func))
             print('Выполняем обёрнутую функцию...')
             await func(message)
             print('Выходим из обёртки')
         else:
-            print(f"{message.from_user.id} не равно {os.environ.get('tg_my_id')}")
+            print(f"{message.from_user.id} не равно {os.environ.get('my_chat_id')}")
+            a = message.from_user.id
+            b = os.environ.get('my_chat_id')
+            print(type(a), type(b))
     return wrapper
 
 
-@decorator
+@check_admin_rights
 async def list_keys(message: types.Message):
     a = await list_all_keys()
     await message.answer(a)
