@@ -17,9 +17,9 @@ header = {"Content-Type": "application/json"}
 base_url = os.environ.get('OUTLINE_API_URL')
 
 
-def send_request(method='get', params=None, path='access-keys/'):
+def send_request(method='get', params=None, path='access-keys/', data=None):
     url = base_url + path
-    request = Request(method=method, url=url, headers=header, params=params)
+    request = Request(method=method, url=url, headers=header, params=params, data=data)
     with Session() as session:
         prepared_request = session.prepare_request(request)
         try:
