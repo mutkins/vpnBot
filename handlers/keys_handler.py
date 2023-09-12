@@ -1,8 +1,8 @@
-from aiogram import Bot, Dispatcher, types
+from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 import os
 import logging
-from handlers.common import reset_state
+from handlers.other.common import reset_state
 from outline.keys import list_all_keys
 log = logging.getLogger("main")
 from dotenv import load_dotenv
