@@ -15,22 +15,31 @@ log = logging.getLogger("main")
 class AccessKeys(Base):
     __tablename__ = 'AccessKeys'
     id = Column(Integer, primary_key=True)
+    name = Column(String(250))
+    password = Column(String(250))
+    port = Column(String(250))
+    method = Column(String(250))
     chat_id = Column(String(250), ForeignKey("Users.chat_id"), unique=False)
-    access_key = Column(String(250), unique=True)
+    access_url = Column(String(250), unique=True)
     date_created = Column(Date)
     is_trial = Column(Boolean)
 
-    def __init__(self, chat_id, access_key, username=None, is_trial=None):
+    def __init__(self, id, chat_id, access_url,name=None, password=None, port=None, method=None, is_trial=None):
+        self.id = id
         self.chat_id = chat_id
-        self.username = username
+        self.name = name
+        self.password = password
+        self.port = port
+        self. method = method
         self.date_created = datetime.now()
         self.is_trial = is_trial
-        self.access_key = access_key
-        self.is_trial = is_trial
+        self.access_url = access_url
 
 
-def add_key(chat_id, access_key, is_trial=None):
-    new_key = AccessKeys(chat_id=chat_id, access_key=access_key, is_trial=is_trial)
+def add_key_to_db(chat_id, access_key, is_trial=None):
+    new_key = AccessKeys(id=access_key.get('id'), chat_id=chat_id, access_url=access_key.get('accessUrl'),
+                         name=access_key.get('name'), password=access_key.get('password'),
+                         port=access_key.get('port'), method=access_key.get('method'), is_trial=is_trial)
 
     with Session(engine) as session:
         session.expire_on_commit = False

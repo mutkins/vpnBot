@@ -3,10 +3,10 @@ from handlers.other.common import reset_state
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InputFile
 from keyboards.keyboards import *
-from handlers.user.send_key import *
+from handlers.user.utils import *
 from db.users import get_user_by_chat_id, add_user
-from outline.keys import add_new_key
-from db.access_keys import add_key, do_user_have_active_trial
+from handlers.user.utils import add_new_key
+from db.access_keys import do_user_have_active_trial
 
 
 async def send_welcome(message: types.Message, state: FSMContext):
@@ -21,13 +21,23 @@ async def send_welcome(message: types.Message, state: FSMContext):
                                                    '', parse_mode='HTML', reply_markup=get_main_meny_kb())
 
 
-async def start_trial(message: types.Message, state: FSMContext):
-    user = get_user_by_chat_id(chat_id=message.from_user.id)
+async def start_trial(call: types.CallbackQuery, state: FSMContext):
+    await call.answer()
+    user = get_user_by_chat_id(chat_id=call.from_user.id)
     if not user:
-        add_user(chat_id=message.from_user.id, username=message.from_user.username)
-    if do_user_have_active_trial(chat_id=message.from_user.id):
-        await bot.send_message(text='Вы уже активировали пробный период. Узнать свой ключ и срок действия: /my_key', chat_id=message.from_user.id)
+        add_user(chat_id=call.from_user.id, username=call.from_user.username)
+    if do_user_have_active_trial(chat_id=call.from_user.id):
+        await bot.send_message(text='Вы уже активировали пробный период. Узнать свой ключ и срок действия: /my_keys', chat_id=call.from_user.id)
     else:
-        access_key = await add_new_key(name=message.from_user.username)
-        add_key(chat_id=message.from_user.id, access_key=access_key, is_trial=True)
-        await send_key_to_user(chat_id=message.from_user.id, access_url=access_key)
+        await add_new_key(name=call.from_user.username, chat_id=call.from_user.id, is_trial=True)
+        await send_instructions(chat_id=call.from_user.id)
+        await send_keys_by_user(chat_id=call.from_user.id)
+
+
+async def my_keys_m(message: types.Message):
+    await send_keys_by_user(chat_id=message.from_user.id)
+
+
+async def my_keys_c(call: types.CallbackQuery):
+    await call.answer()
+    await send_keys_by_user(chat_id=call.from_user.id)

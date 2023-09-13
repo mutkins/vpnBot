@@ -10,11 +10,10 @@ async def list_all_keys():
     return send_request(method='GET', path='access-keys/').json()
 
 
-async def add_new_key(name):
+async def add_key_to_srv(name):
     key_id = await create_new_key()
     await rename_key(name, key_id)
-    key = await get_key_by_id(key_id)
-    return await extract_access_url_from_key(key)
+    return await get_key_by_id(key_id)
 
 
 async def create_new_key():
