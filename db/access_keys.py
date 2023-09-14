@@ -51,7 +51,7 @@ def add_key_to_db(chat_id, access_key, is_trial=None):
             # return error if something went wrong
             session.rollback()
             log.error(e)
-            return e.args
+            raise e
 
 
 def get_keys_by_user(chat_id):
@@ -63,7 +63,7 @@ def get_keys_by_user(chat_id):
             # return error if something went wrong
             session.rollback()
             log.error(e)
-            return e.args
+            raise e
 
 
 def do_user_have_active_trial(chat_id):
@@ -73,3 +73,27 @@ def do_user_have_active_trial(chat_id):
             if key.is_trial:
                 return True
     return False
+
+
+def get_all_keys():
+    with Session(engine) as session:
+        # session.expire_on_commit = False
+        try:
+            return session.query(AccessKeys)
+        except exc.IntegrityError as e:
+            # return error if something went wrong
+            session.rollback()
+            log.error(e)
+            raise e
+
+
+def get_key_by_id(key_id):
+    with Session(engine) as session:
+        # session.expire_on_commit = False
+        try:
+            return session.query(AccessKeys).filter_by(id=key_id)
+        except exc.IntegrityError as e:
+            # return error if something went wrong
+            session.rollback()
+            log.error(e)
+            raise e

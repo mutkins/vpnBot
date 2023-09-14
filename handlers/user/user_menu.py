@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import types
 from handlers.other.common import reset_state
 from aiogram.dispatcher import FSMContext
@@ -7,6 +9,11 @@ from handlers.user.utils import *
 from db.users import get_user_by_chat_id, add_user
 from handlers.user.utils import add_new_key
 from db.access_keys import do_user_have_active_trial
+
+
+logging.basicConfig(filename="main.log", level=logging.INFO, filemode="w",
+                    format="%(asctime)s %(levelname)s %(message)s")
+log = logging.getLogger("main")
 
 
 async def send_welcome(message: types.Message, state: FSMContext):
@@ -23,21 +30,50 @@ async def send_welcome(message: types.Message, state: FSMContext):
 
 async def start_trial(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
-    user = get_user_by_chat_id(chat_id=call.from_user.id)
-    if not user:
-        add_user(chat_id=call.from_user.id, username=call.from_user.username)
-    if do_user_have_active_trial(chat_id=call.from_user.id):
-        await bot.send_message(text='Вы уже активировали пробный период. Узнать свой ключ и срок действия: /my_keys', chat_id=call.from_user.id)
-    else:
-        await add_new_key(name=call.from_user.username, chat_id=call.from_user.id, is_trial=True)
-        await send_instructions(chat_id=call.from_user.id)
-        await send_keys_by_user(chat_id=call.from_user.id)
+    try:
+        user = get_user_by_chat_id(chat_id=call.from_user.id)
+        if not user:
+            add_user(chat_id=call.from_user.id, username=call.from_user.username)
+        if do_user_have_active_trial(chat_id=call.from_user.id):
+            await bot.send_message(text='Вы уже активировали пробный период. Узнать свой ключ и срок действия: /my_keys', chat_id=call.from_user.id)
+        else:
+            await add_new_key(name=call.from_user.username, chat_id=call.from_user.id, is_trial=True)
+            await send_instructions(chat_id=call.from_user.id)
+            await send_keys_by_user(chat_id=call.from_user.id)
+    except Exception as e:
+        log.error(e)
+        await send_error_msg(chat_id=call.from_user.id)
 
 
 async def my_keys_m(message: types.Message):
-    await send_keys_by_user(chat_id=message.from_user.id)
+    try:
+        await send_keys_by_user(chat_id=message.from_user.id)
+    except Exception as e:
+        log.error(e)
+        await send_error_msg(chat_id=message.from_user.id)
 
 
 async def my_keys_c(call: types.CallbackQuery):
-    await call.answer()
-    await send_keys_by_user(chat_id=call.from_user.id)
+    try:
+        await call.answer()
+        await send_keys_by_user(chat_id=call.from_user.id)
+    except Exception as e:
+        log.error(e)
+        await send_error_msg(chat_id=call.from_user.id)
+
+
+async def get_instructions_m(message: types.Message):
+    try:
+        await send_instructions(chat_id=message.from_user.id)
+    except Exception as e:
+        log.error(e)
+        await send_error_msg(chat_id=message.from_user.id)
+
+
+async def get_instructions_c(call: types.CallbackQuery):
+    try:
+        await call.answer()
+        await send_instructions(chat_id=call.from_user.id)
+    except Exception as e:
+        log.error(e)
+        await send_error_msg(chat_id=call.from_user.id)

@@ -34,7 +34,7 @@ def add_user(chat_id, username=None):
             # return error if something went wrong
             session.rollback()
             log.error(e)
-            return e.args
+            raise e
 
 
 def get_user_by_chat_id(chat_id):
@@ -46,4 +46,4 @@ def get_user_by_chat_id(chat_id):
             # return error if something went wrong
             session.rollback()
             log.error(e)
-            return e.args
+            raise e

@@ -1,16 +1,14 @@
-from aiogram import Bot, Dispatcher, types
 from create_bot import bot
-from aiogram.types import InputFile
 from aiogram import types
-from handlers.other.common import reset_state
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InputFile
-from keyboards.keyboards import *
 from handlers.user.utils import *
-from db.users import get_user_by_chat_id, add_user
 from outline.keys import add_key_to_srv
-from db.access_keys import add_key_to_db, do_user_have_active_trial, get_keys_by_user
+from db.access_keys import *
+from outline.keys import *
 import logging
+from Exceptions.Exceptions import *
+
 
 logging.basicConfig(filename="main.log", level=logging.DEBUG, filemode="w",
                     format="%(asctime)s %(levelname)s %(message)s")
@@ -46,12 +44,16 @@ async def get_keys(message: types.Message, state: FSMContext):
 
 async def add_new_key(name, chat_id, is_trial=False):
     access_key = await add_key_to_srv(name=name)
-    add_key_to_db(chat_id=chat_id, access_key=access_key, is_trial=is_trial)
     try:
-        verify_consistency()
+        add_key_to_db(chat_id=chat_id, access_key=access_key, is_trial=is_trial)
     except Exception as e:
         log.error(e)
+        log.error('Cause ERROR with addind key to db, DELETE key from server')
+        await delete_key(access_key.get('id'))
+        log.error('Key deleted from server')
+        raise e
 
 
-async def verify_consistency():
-    pass
+async def send_error_msg(chat_id):
+    bot.send_message(text=f'<b>Ошибка, попробуйте позже или обратитесь в техподдержку</b>',
+                     chat_id=chat_id, parse_mode='HTML')

@@ -10,6 +10,8 @@ def get_main_meny_kb():
     ikb.add(button)
     button = InlineKeyboardButton(text='📄 Правила', callback_data='rules')
     ikb.add(button)
+    button = InlineKeyboardButton(text='📖 Инструкция', callback_data='get_instructions')
+    ikb.add(button)
     button = InlineKeyboardButton(text='🔑 Мои ключи', callback_data='my_keys')
     ikb.add(button)
     return ikb
