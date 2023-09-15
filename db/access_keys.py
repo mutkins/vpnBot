@@ -24,6 +24,7 @@ class AccessKeys(Base):
     is_trial = Column(Boolean)
     expired = Column(Date)
     is_active = Column(Boolean)
+
     def __init__(self, id, chat_id, access_url,name=None, password=None, port=None, method=None, is_trial=None):
         self.id = id
         self.chat_id = chat_id
@@ -56,11 +57,15 @@ def add_key_to_db(chat_id, access_key, is_trial=None):
             raise e
 
 
-def get_keys_by_user(chat_id):
+def get_keys_by_user(chat_id, is_active=None):
     with Session(engine) as session:
         # session.expire_on_commit = False
         try:
-            return session.query(AccessKeys).filter_by(chat_id=chat_id)
+            if is_active is None:
+                res = session.query(AccessKeys).filter_by(chat_id=chat_id)
+            else:
+                res = session.query(AccessKeys).filter_by(chat_id=chat_id).filter_by(is_active=is_active)
+            return res
         except exc.IntegrityError as e:
             # return error if something went wrong
             session.rollback()
@@ -105,7 +110,7 @@ def mark_expired_key(key_id):
     with Session(engine) as session:
         session.expire_on_commit = False
         try:
-            key = session.query(AccessKeys).filter_by(id=key_id)
+            key = session.query(AccessKeys).filter_by(id=key_id).one()
             key.is_active = False
             session.commit()
             return None

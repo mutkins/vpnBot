@@ -9,6 +9,7 @@ from handlers.user.utils import *
 from db.users import get_user_by_chat_id, add_user
 from handlers.user.utils import add_new_key
 from db.access_keys import do_user_have_active_trial
+from handlers.user.payment import send_subscribe_info
 
 
 logging.basicConfig(filename="main.log", level=logging.INFO, filemode="w",
@@ -17,13 +18,17 @@ log = logging.getLogger("main")
 
 
 async def send_welcome(message: types.Message, state: FSMContext):
-    # Reset state if it exists
-    await reset_state(state=state)
-    file = InputFile("content/main-menu.png")
-    await message.answer_photo(photo=file, caption='Ducky - это просто!\n'
-                                                   '- Пробный период на <b>30 дней (ого!)</b> в один клик\n'
-                                                   '- Подписка <b>всего за 100р/мес</b>\n'
-                                                   '', parse_mode='HTML', reply_markup=get_main_meny_kb())
+    try:
+        # Reset state if it exists
+        await reset_state(state=state)
+        file = InputFile("content/main-menu.png")
+        await message.answer_photo(photo=file, caption='Ducky - это просто!\n'
+                                                       '- Пробный период на <b>30 дней (ого!)</b> в один клик\n'
+                                                       '- Подписка <b>всего за 100р/мес</b>\n'
+                                                       '', parse_mode='HTML', reply_markup=get_main_menu_kb())
+    except Exception as e:
+        log.error(e)
+        await send_error_msg(chat_id=message.from_user.id)
 
 
 async def start_trial(call: types.CallbackQuery, state: FSMContext):
@@ -37,18 +42,18 @@ async def start_trial(call: types.CallbackQuery, state: FSMContext):
         else:
             await add_new_key(name=call.from_user.username, chat_id=call.from_user.id, is_trial=True)
             await send_instructions(chat_id=call.from_user.id)
-            await send_keys_by_user(chat_id=call.from_user.id)
+            await send_active_keys_by_user(chat_id=call.from_user.id)
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=call.from_user.id)
 
 
 async def my_keys(message: types.Message):
-    # If it's callback - send empty answer to finish callback progress bar
-    if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
-        await message.answer()
     try:
-        await send_keys_by_user(chat_id=message.from_user.id)
+        # If it's callback - send empty answer to finish callback progress bar
+        if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
+            await message.answer()
+        await send_active_keys_by_user(chat_id=message.from_user.id)
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=message.from_user.id)
@@ -71,6 +76,28 @@ async def get_rules(message: types.Message):
         await message.answer()
     try:
         await send_rules(chat_id=message.from_user.id)
+    except Exception as e:
+        log.error(e)
+        await send_error_msg(chat_id=message.from_user.id)
+
+
+async def subscribe(message: types.Message):
+    # If it's callback - send empty answer to finish callback progress bar
+    if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
+        await message.answer()
+    try:
+        await send_subscribe_info(chat_id=message.from_user.id)
+    except Exception as e:
+        log.error(e)
+        await send_error_msg(chat_id=message.from_user.id)
+
+
+async def do_pay(message: types.Message):
+    # If it's callback - send empty answer to finish callback progress bar
+    if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
+        await message.answer()
+    try:
+        await buy(chat_id=message.from_user.id)
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=message.from_user.id)

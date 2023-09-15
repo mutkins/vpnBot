@@ -2,7 +2,7 @@ from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButt
     InlineKeyboardButton
 
 
-def get_main_meny_kb():
+def get_main_menu_kb():
     ikb = InlineKeyboardMarkup(row_width=1)
     button = InlineKeyboardButton(text='🆓 Пробный период', callback_data='start_trial')
     ikb.add(button)
@@ -15,3 +15,10 @@ def get_main_meny_kb():
     button = InlineKeyboardButton(text='🔑 Мои ключи', callback_data='my_keys')
     ikb.add(button)
     return ikb
+
+#
+# def get_payment_menu_kb():
+#     ikb = InlineKeyboardMarkup(row_width=1)
+#     button = InlineKeyboardButton(text='💵 Оплатить', callback_data='do_pay')
+#     ikb.add(button)
+#     return ikb

@@ -1,5 +1,7 @@
 from aiogram import Dispatcher
 from handlers.user.user_menu import *
+from aiogram.types.message import ContentType
+from handlers.user.payment import pre_checkout_query, successful_payment
 
 
 def register_user_handlers(dp: Dispatcher):
@@ -11,3 +13,8 @@ def register_user_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(get_instructions, text=['get_instructions'])
     dp.register_callback_query_handler(get_rules, text=['rules'])
     dp.register_message_handler(get_rules, state='*', commands=['rules'])
+    dp.register_callback_query_handler(subscribe, text=['subscribe'])
+    dp.register_message_handler(subscribe, state='*', commands=['subscribe'])
+    dp.register_message_handler(successful_payment, content_types=ContentType.SUCCESSFUL_PAYMENT)
+    dp.register_pre_checkout_query_handler(pre_checkout_query, lambda message: True)
+

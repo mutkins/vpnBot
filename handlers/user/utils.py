@@ -29,8 +29,8 @@ async def send_instructions(chat_id):
                                 'Шаг 3: Подключайтесь и пользуйтесь', chat_id=chat_id, parse_mode='HTML')
 
 
-async def send_keys_by_user(chat_id):
-    keys = get_keys_by_user(chat_id=chat_id)
+async def send_active_keys_by_user(chat_id):
+    keys = get_keys_by_user(chat_id=chat_id, is_active=True)
     if bool(keys.first()):
         await bot.send_message(text=f'Ваши активные ключи доступа:', chat_id=chat_id, parse_mode='HTML')
         for key in keys:

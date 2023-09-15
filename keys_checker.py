@@ -16,19 +16,23 @@ async def on_startup(_):
 
 
 async def scheduler():
-    aioschedule.every().day.at('19:40').do(check_keys)
+    aioschedule.every().day.at('12:05').do(check_keys)
     while True:
         await aioschedule.run_pending()
         await asyncio.sleep(1)
 
 
 async def check_keys():
+    log.info('Time to check expired keys')
     keys = get_all_active_keys()
     for key in keys:
-        if key.is_trial and key.expired >= datetime.today():
+        if key.is_trial and key.expired <= datetime.today().date():
+            log.info(f'key {key.id} is expied. Try to delete it from server and mark as expired in db')
             try:
-                delete_key(key_id=key.id)
+                await delete_key(key_id=key.id)
+                log.info(f'Delete it from server - SUCCESS')
                 mark_expired_key(key_id=key.id)
+                log.info(f'Mark it expired in db - SUCCESS')
             except Exception as e:
                 log.error(f'ERROR WHEN TRY TO MARK EXPIRED KEY {e}')
 
