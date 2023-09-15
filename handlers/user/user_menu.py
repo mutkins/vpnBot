@@ -20,11 +20,9 @@ async def send_welcome(message: types.Message, state: FSMContext):
     # Reset state if it exists
     await reset_state(state=state)
     file = InputFile("content/main-menu.png")
-    await message.answer_photo(photo=file, caption='Ducky не будет тебя утомлять, выбирай:\n'
-                                                   '- Активировать пробный период на <b>30 дней (ого!)</b> в один клик\n'
-                                                   '- Оформить подписку <b>всего за 100р/мес</b>\n'
-                                                   '- Ознакомиться с правилами и особенностями\n'
-                                                   '- Просмотреть свои ключи'
+    await message.answer_photo(photo=file, caption='Ducky - это просто!\n'
+                                                   '- Пробный период на <b>30 дней (ого!)</b> в один клик\n'
+                                                   '- Подписка <b>всего за 100р/мес</b>\n'
                                                    '', parse_mode='HTML', reply_markup=get_main_meny_kb())
 
 
@@ -45,7 +43,10 @@ async def start_trial(call: types.CallbackQuery, state: FSMContext):
         await send_error_msg(chat_id=call.from_user.id)
 
 
-async def my_keys_m(message: types.Message):
+async def my_keys(message: types.Message):
+    # If it's callback - send empty answer to finish callback progress bar
+    if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
+        await message.answer()
     try:
         await send_keys_by_user(chat_id=message.from_user.id)
     except Exception as e:
@@ -53,16 +54,10 @@ async def my_keys_m(message: types.Message):
         await send_error_msg(chat_id=message.from_user.id)
 
 
-async def my_keys_c(call: types.CallbackQuery):
-    try:
-        await call.answer()
-        await send_keys_by_user(chat_id=call.from_user.id)
-    except Exception as e:
-        log.error(e)
-        await send_error_msg(chat_id=call.from_user.id)
-
-
-async def get_instructions_m(message: types.Message):
+async def get_instructions(message: types.Message):
+    # If it's callback - send empty answer to finish callback progress bar
+    if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
+        await message.answer()
     try:
         await send_instructions(chat_id=message.from_user.id)
     except Exception as e:
@@ -70,10 +65,12 @@ async def get_instructions_m(message: types.Message):
         await send_error_msg(chat_id=message.from_user.id)
 
 
-async def get_instructions_c(call: types.CallbackQuery):
+async def get_rules(message: types.Message):
+    # If it's callback - send empty answer to finish callback progress bar
+    if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
+        await message.answer()
     try:
-        await call.answer()
-        await send_instructions(chat_id=call.from_user.id)
+        await send_rules(chat_id=message.from_user.id)
     except Exception as e:
         log.error(e)
-        await send_error_msg(chat_id=call.from_user.id)
+        await send_error_msg(chat_id=message.from_user.id)

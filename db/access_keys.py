@@ -4,8 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import logging
 from sqlalchemy.types import Boolean
 from db.db_init import Base, engine
-from datetime import datetime
-
+from datetime import datetime, date, timedelta
 
 logging.basicConfig(filename="main.log", level=logging.DEBUG, filemode="w",
                     format="%(asctime)s %(levelname)s %(message)s")
@@ -23,7 +22,8 @@ class AccessKeys(Base):
     access_url = Column(String(250), unique=True)
     date_created = Column(Date)
     is_trial = Column(Boolean)
-
+    expired = Column(Date)
+    is_active = Column(Boolean)
     def __init__(self, id, chat_id, access_url,name=None, password=None, port=None, method=None, is_trial=None):
         self.id = id
         self.chat_id = chat_id
@@ -33,6 +33,8 @@ class AccessKeys(Base):
         self. method = method
         self.date_created = datetime.now()
         self.is_trial = is_trial
+        self.expired = datetime.now() + timedelta(days=30) if is_trial else None
+        self.is_active = True
         self.access_url = access_url
 
 
@@ -75,11 +77,11 @@ def do_user_have_active_trial(chat_id):
     return False
 
 
-def get_all_keys():
+def get_all_active_keys():
     with Session(engine) as session:
         # session.expire_on_commit = False
         try:
-            return session.query(AccessKeys)
+            return session.query(AccessKeys).filter_by(is_active=True)
         except exc.IntegrityError as e:
             # return error if something went wrong
             session.rollback()
@@ -92,6 +94,21 @@ def get_key_by_id(key_id):
         # session.expire_on_commit = False
         try:
             return session.query(AccessKeys).filter_by(id=key_id)
+        except exc.IntegrityError as e:
+            # return error if something went wrong
+            session.rollback()
+            log.error(e)
+            raise e
+
+
+def mark_expired_key(key_id):
+    with Session(engine) as session:
+        session.expire_on_commit = False
+        try:
+            key = session.query(AccessKeys).filter_by(id=key_id)
+            key.is_active = False
+            session.commit()
+            return None
         except exc.IntegrityError as e:
             # return error if something went wrong
             session.rollback()
