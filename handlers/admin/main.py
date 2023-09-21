@@ -1,5 +1,5 @@
 from aiogram import Dispatcher
-from handlers.admin.list import list_keys
+from handlers.admin.actions import list_keys
 
 
 def register_admin_handlers(dp: Dispatcher):

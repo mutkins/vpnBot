@@ -1,5 +1,4 @@
 import os
-
 from requests import Request
 from requests import Session
 from requests import exceptions

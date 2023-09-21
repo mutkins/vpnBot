@@ -15,10 +15,3 @@ def get_main_menu_kb():
     button = InlineKeyboardButton(text='🔑 Мои ключи', callback_data='my_keys')
     ikb.add(button)
     return ikb
-
-#
-# def get_payment_menu_kb():
-#     ikb = InlineKeyboardMarkup(row_width=1)
-#     button = InlineKeyboardButton(text='💵 Оплатить', callback_data='do_pay')
-#     ikb.add(button)
-#     return ikb
