@@ -49,8 +49,8 @@ async def check_vpn():
     log.info(f'Download speed: {int(speeds["download_speed"]/1000000)}Mb/s')
     log.info(f'Upload speed: {int(speeds["upload_speed"]/1000000)}Mb/s')
     if speeds['download_speed'] < 10*1000000 or speeds['upload_speed'] < 10*1000000:
-        log.warn(f'<b>VPN WARN REPORT</b>\n'
-                 f'average speed {int(speeds["download_speed"]/1000000)}Mb/s / {int(speeds["upload_speed"]/1000000)}Mb/s')
+        log.warning(f'<b>VPN WARN REPORT</b>\n'
+                    f'average speed {int(speeds["download_speed"]/1000000)}Mb/s / {int(speeds["upload_speed"]/1000000)}Mb/s')
         await send_error_report(f'<b>VPN WARN REPORT</b>\n'
                                 f'average speed {int(speeds["download_speed"]/1000000)}Mb/s / {int(speeds["upload_speed"]/1000000)}Mb/s')
 
