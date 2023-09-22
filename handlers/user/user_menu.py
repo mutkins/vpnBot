@@ -64,7 +64,7 @@ async def get_instructions(message: types.Message):
     if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
         await message.answer()
     try:
-        await send_instructions(chat_id=message.from_user.id)
+        await send_servers(chat_id=message.from_user.id)
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=message.from_user.id)
@@ -76,6 +76,17 @@ async def get_rules(message: types.Message):
         await message.answer()
     try:
         await send_rules(chat_id=message.from_user.id)
+    except Exception as e:
+        log.error(e)
+        await send_error_msg(chat_id=message.from_user.id)
+
+
+async def choose_server(message: types.Message):
+    # If it's callback - send empty answer to finish callback progress bar
+    if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
+        await message.answer()
+    try:
+        await send_servers(chat_id=message.from_user.id)
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=message.from_user.id)

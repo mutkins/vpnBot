@@ -15,3 +15,10 @@ def get_main_menu_kb():
     button = InlineKeyboardButton(text='🔑 Мои ключи', callback_data='my_keys')
     ikb.add(button)
     return ikb
+
+
+def get_servers_kb():
+    ikb = InlineKeyboardMarkup(row_width=1)
+    button = InlineKeyboardButton(text='🇫🇮 Finland', callback_data='Finland')
+    ikb.add(button)
+    return ikb

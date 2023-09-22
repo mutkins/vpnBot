@@ -16,7 +16,7 @@ log = logging.getLogger("main")
 
 
 async def scheduler():
-    aioschedule.every(4).hour.do(check_vpn)
+    aioschedule.every(4).hours.do(check_vpn)
     aioschedule.every().day.at(TIME_TO_CHECK_KEYS).do(check_keys)
     while True:
         await aioschedule.run_pending()

@@ -10,6 +10,7 @@ from db.access_keys import *
 from outline.keys import *
 import logging
 from Exceptions.Exceptions import *
+from keyboards.keyboards import get_servers_kb
 
 
 logging.basicConfig(filename="main.log", level=logging.DEBUG, filemode="w",
@@ -68,3 +69,9 @@ async def send_rules(chat_id):
     await bot.send_photo(photo=file, caption='🔑 Одним ключом можно пользоваться на всех ваших устройствах.\n'
                                              '🚫 Нельзя делиться ключом с другими людьми. В противном случае ключ будет заблокирован\n'
                                              'Вот и всё!', chat_id=chat_id, parse_mode='HTML')
+
+
+async def send_servers(chat_id):
+    file = InputFile("content/servers.png")
+    await bot.send_photo(photo=file, caption= 'Выберите сервер, через который хотите работать',
+                         chat_id=chat_id, parse_mode='HTML', reply_markup=get_servers_kb())
