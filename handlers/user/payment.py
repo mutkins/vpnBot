@@ -9,15 +9,20 @@ load_dotenv()
 logging.basicConfig(filename="main.log", level=logging.INFO, filemode="w",
                     format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("main")
+from config import PRICES
 
 
-async def send_subscribe_info(chat_id):
-    # prices
-    PRICE = types.LabeledPrice(label="Подписка на 1 месяц", amount=100 * 100)
+async def send_subscribe_info(chat_id, period, country):
+    match period:
+        case '1': label = "подписка на 1 месяц"
+        case '3': label = "подписка на 3 месяца"
+        case '6': label = "подписка на 6 месяцев"
+
+    PRICE = types.LabeledPrice(label=label, amount=PRICES.get(country).get(f'{period} month')*100)
 
     await bot.send_invoice(chat_id=chat_id,
                            title="Подписка",
-                           description="Активация подписки на vpn ключ",
+                           description=f"Vpn ключ, {label}",
                            provider_token=os.environ.get('PAYMENT_TOKEN'),
                            currency="rub",
                            is_flexible=False,
@@ -32,7 +37,8 @@ async def pre_checkout_query(pre_checkout_q: types.PreCheckoutQuery):
         await bot.answer_pre_checkout_query(pre_checkout_q.id, ok=True)
     except Exception as e:
         log.error(f'ERROR with adding new key. Payment canceled {e}')
-        await bot.answer_pre_checkout_query(pre_checkout_q.id, ok=False, error_message='Платеж отменен, попробуйте позже или обратитесь в техподдержку.')
+        await bot.answer_pre_checkout_query(pre_checkout_q.id, ok=False,
+                                            error_message='Платеж отменен, попробуйте позже или обратитесь в техподдержку')
 
 
 async def successful_payment(message: types.Message):
@@ -40,7 +46,5 @@ async def successful_payment(message: types.Message):
     payment_info = message.successful_payment.to_python()
     for k, v in payment_info.items():
         log.info(f"{k} = {v}")
-    # await bot.send_message(message.chat.id,
-    #                        f"Платеж на сумму {message.successful_payment.total_amount // 100} {message.successful_payment.currency} прошел успешно")
     await send_instructions(chat_id=message.from_user.id)
     await send_active_keys_by_user(chat_id=message.from_user.id)

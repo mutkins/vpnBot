@@ -57,15 +57,17 @@ def add_key_to_db(chat_id, access_key, is_trial=None):
             raise e
 
 
-def get_keys_by_user(chat_id, is_active=None):
+def get_keys_by_user(chat_id, is_active=None, is_trial=None):
     with Session(engine) as session:
         # session.expire_on_commit = False
         try:
-            if is_active is None:
-                res = session.query(AccessKeys).filter_by(chat_id=chat_id)
-            else:
-                res = session.query(AccessKeys).filter_by(chat_id=chat_id).filter_by(is_active=is_active)
+            res = session.query(AccessKeys).filter_by(chat_id=chat_id)
+            if is_active is not None:
+                res = res.filter_by(is_active=is_active)
+            if is_trial is not None:
+                res = res.filter_by(is_trial=is_trial)
             return res
+
         except exc.IntegrityError as e:
             # return error if something went wrong
             session.rollback()

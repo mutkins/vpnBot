@@ -81,6 +81,17 @@ async def get_rules(message: types.Message):
         await send_error_msg(chat_id=message.from_user.id)
 
 
+async def sub(message: types.Message):
+    # If it's callback - send empty answer to finish callback progress bar
+    if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
+        await message.answer()
+    try:
+        await send_constant_keys(chat_id=message.from_user.id)
+    except Exception as e:
+        log.error(e)
+        await send_error_msg(chat_id=message.from_user.id)
+
+
 async def choose_server(message: types.Message):
     # If it's callback - send empty answer to finish callback progress bar
     if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
@@ -96,8 +107,11 @@ async def subscribe(message: types.Message):
     # If it's callback - send empty answer to finish callback progress bar
     if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
         await message.answer()
+    country = message.data.split(' ')[0]
+    period = message.data.split(' ')[1]
+
     try:
-        await send_subscribe_info(chat_id=message.from_user.id)
+        await send_subscribe_info(chat_id=message.from_user.id, period=period, country=country)
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=message.from_user.id)

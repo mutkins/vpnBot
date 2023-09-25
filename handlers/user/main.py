@@ -13,10 +13,13 @@ def register_user_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(get_instructions, text=['get_instructions'])
     dp.register_callback_query_handler(get_rules, text=['rules'])
     dp.register_message_handler(get_rules, state='*', commands=['rules'])
-    dp.register_callback_query_handler(choose_server, text=['subscribe'])
-    dp.register_message_handler(choose_server, state='*', commands=['subscribe'])
-    dp.register_callback_query_handler(subscribe, text=['Finland'])
-    dp.register_message_handler(subscribe, state='*', commands=['Finland'])
+    # dp.register_callback_query_handler(choose_server, text=['subscribe'])
+    # dp.register_message_handler(choose_server, state='*', commands=['subscribe'])
+    dp.register_callback_query_handler(sub, text=['subscribe'])
+    dp.register_message_handler(sub, state='*', commands=['subscribe'])
+
+    dp.register_callback_query_handler(subscribe, text=['Finland 1', 'Finland 3'])
+    dp.register_message_handler(subscribe, state='*', commands=['Finland 1', 'Finland 3'])
 
     dp.register_message_handler(successful_payment, content_types=ContentType.SUCCESSFUL_PAYMENT)
     dp.register_pre_checkout_query_handler(pre_checkout_query, lambda message: True)
