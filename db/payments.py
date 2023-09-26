@@ -22,7 +22,7 @@ class Payments(Base):
     phone = Column(String(250))
     telegram_payment_charge_id = Column(String(250))
     provider_payment_charge_id = Column(String(250))
-    date_created = Column(Date)
+    date_created = Column(DateTime)
     chat_id = Column(String(250), ForeignKey("Users.chat_id"), unique=False)
 
     def __init__(self, chat_id, currency, total_amount, invoice_payload, telegram_payment_charge_id,

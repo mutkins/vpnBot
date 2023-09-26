@@ -14,6 +14,7 @@ log = logging.getLogger("main")
 class AccessKeys(Base):
     __tablename__ = 'AccessKeys'
     id = Column(Integer, primary_key=True)
+    server_id = Column(Integer)
     name = Column(String(250))
     password = Column(String(250))
     port = Column(String(250))
@@ -26,8 +27,8 @@ class AccessKeys(Base):
     expired = Column(Date)
     is_active = Column(Boolean)
 
-    def __init__(self, id, chat_id, access_url, server_name, name=None, password=None, port=None, method=None, is_trial=None, expired=None):
-        self.id = id
+    def __init__(self, server_id, chat_id, access_url, server_name, name=None, password=None, port=None, method=None, is_trial=None, expired=None):
+        self.server_id = server_id
         self.chat_id = chat_id
         self.name = name
         self.password = password
@@ -42,7 +43,7 @@ class AccessKeys(Base):
 
 
 def add_key_to_db(chat_id, access_key, server_name, is_trial=None, expired=None):
-    new_key = AccessKeys(id=access_key.get('id'), chat_id=chat_id, access_url=access_key.get('accessUrl'),
+    new_key = AccessKeys(server_id=access_key.get('id'), chat_id=chat_id, access_url=access_key.get('accessUrl'),
                          name=access_key.get('name'), password=access_key.get('password'),
                          port=access_key.get('port'), method=access_key.get('method'), is_trial=is_trial,
                          server_name=server_name, expired=expired)
@@ -103,7 +104,7 @@ def get_key_by_id(key_id):
     with Session(engine) as session:
         # session.expire_on_commit = False
         try:
-            return session.query(AccessKeys).filter_by(id=key_id)
+            return session.query(AccessKeys).filter_by(id=key_id).one()
         except exc.IntegrityError as e:
             # return error if something went wrong
             session.rollback()

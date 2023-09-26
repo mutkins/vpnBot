@@ -16,10 +16,8 @@ def register_user_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(subscription, text=['subscribe'])
     dp.register_message_handler(subscription, state='*', commands=['subscribe'])
     dp.register_callback_query_handler(choose_server_and_rate, text=['buy_new_key'])
-    dp.register_message_handler(choose_server_and_rate, state='*', commands=['buy_new_key'])
-
+    dp.register_callback_query_handler(choose_rate, lambda callback: callback.data.startswith('prolong_key'))
     dp.register_callback_query_handler(extend_key, lambda callback: callback.data.startswith('extend_key'))
-
     dp.register_callback_query_handler(get_new_key, lambda callback: callback.data.startswith('get_new_key'))
 
 

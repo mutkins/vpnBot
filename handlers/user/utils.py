@@ -5,12 +5,11 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InputFile
 from handlers.user.utils import *
-from outline.keys import add_key_to_srv
+from outline.keys import add_key_to_srv, delete_key
 from db.access_keys import *
-from outline.keys import *
 import logging
 from Exceptions.Exceptions import *
-from keyboards.keyboards import get_servers_kb, get_keys_by_user_kb
+from keyboards.keyboards import get_servers_kb, get_keys_by_user_kb, get_extend_period_kb
 from config import SERVERS
 
 logging.basicConfig(filename="main.log", level=logging.DEBUG, filemode="w",
@@ -76,6 +75,14 @@ async def send_servers_and_rates(chat_id):
     file = InputFile("content/servers.png")
     await bot.send_photo(photo=file, caption= 'Выберите сервер и тариф',
                          chat_id=chat_id, parse_mode='HTML', reply_markup=get_servers_kb())
+
+
+async def send_rates(chat_id, key_id):
+    file = InputFile("content/servers.png")
+    key = get_key_by_id(key_id=key_id)
+    srv = await get_server_by_name(key.server_name)
+    await bot.send_photo(photo=file, caption= 'Выберите тариф для продления',
+                         chat_id=chat_id, parse_mode='HTML', reply_markup=get_extend_period_kb(key=key, srv=srv))
 
 
 async def send_extend_or_new_key(chat_id):
