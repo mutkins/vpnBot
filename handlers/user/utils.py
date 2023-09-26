@@ -11,7 +11,7 @@ from outline.keys import *
 import logging
 from Exceptions.Exceptions import *
 from keyboards.keyboards import get_servers_kb, get_keys_by_user_kb
-
+from config import SERVERS
 
 logging.basicConfig(filename="main.log", level=logging.DEBUG, filemode="w",
                     format="%(asctime)s %(levelname)s %(message)s")
@@ -47,10 +47,11 @@ async def get_keys(message: types.Message, state: FSMContext):
     await send_instructions(chat_id=message.from_user.id)
 
 
-async def add_new_key(name, chat_id, is_trial=False):
+async def add_new_key(name, chat_id, server_name, expired, is_trial=False):
     access_key = await add_key_to_srv(name=name)
     try:
-        add_key_to_db(chat_id=chat_id, access_key=access_key, is_trial=is_trial)
+        add_key_to_db(chat_id=chat_id, access_key=access_key, is_trial=is_trial,
+                      server_name=server_name, expired=expired)
     except Exception as e:
         log.error(e)
         log.error('Cause ERROR with addind key to db, DELETE key from server')
@@ -71,13 +72,27 @@ async def send_rules(chat_id):
                                              'Вот и всё!', chat_id=chat_id, parse_mode='HTML')
 
 
-async def send_servers(chat_id):
+async def send_servers_and_rates(chat_id):
     file = InputFile("content/servers.png")
-    await bot.send_photo(photo=file, caption= 'Выберите сервер, через который хотите работать',
+    await bot.send_photo(photo=file, caption= 'Выберите сервер и тариф',
                          chat_id=chat_id, parse_mode='HTML', reply_markup=get_servers_kb())
 
 
-async def send_constant_keys(chat_id):
+async def send_extend_or_new_key(chat_id):
     file = InputFile("content/servers.png")
-    await bot.send_photo(photo=file, caption='Для продления ключа - выберите его. Или оформите новый',
+    await bot.send_photo(photo=file, caption='Выберите ключ, который хотите продлить, или оформите новый',
                          chat_id=chat_id, parse_mode='HTML', reply_markup=get_keys_by_user_kb(chat_id=chat_id))
+
+
+async def get_server_by_name(srv_name):
+    for srv in SERVERS:
+        if srv.get('name') == srv_name:
+            return srv
+    return None
+
+
+async def get_price_by_period(srv, period):
+    for price in srv.get('price'):
+        if price.get('id') == int(period):
+            return price
+    return None

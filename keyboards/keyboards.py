@@ -1,6 +1,6 @@
-from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup,\
+from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, \
     InlineKeyboardButton
-from config import PRICES
+from config import SERVERS
 from db.access_keys import get_keys_by_user
 
 
@@ -21,12 +21,15 @@ def get_main_menu_kb():
 
 def get_servers_kb():
     ikb = InlineKeyboardMarkup(row_width=1)
-    button = InlineKeyboardButton(text=f'🇫🇮 Finland, 1 месяц = {PRICES.get("Finland").get("1 month")}р',
-                                  callback_data='Finland 1')
-    ikb.add(button)
-    button = InlineKeyboardButton(text=f'🇫🇮 Finland, 3 месяца = {PRICES.get("Finland").get("3 month")}р',
-                                  callback_data=f'Finland 3')
-    ikb.add(button)
+    buttons = []
+    for srv in SERVERS:
+        for price in srv.get("price"):
+            button = InlineKeyboardButton(
+                text=f'{srv.get("flag")} {srv.get("country")}, {price.get("name_ru")} = {price.get("price")}р',
+                callback_data=f'get_new_key {srv.get("name")} {price.get("id")}')
+            buttons.append(button)
+
+    ikb.add(*buttons)
     return ikb
 
 
@@ -38,11 +41,11 @@ def get_keys_by_user_kb(chat_id):
         for key in keys:
             due = key.expired.strftime('%d.%m.%Y') if key.expired else '♾'
             button = InlineKeyboardButton(text=f'Ключ №{key.id}, срок действия: {due}',
-                                          callback_data=key.id)
+                                          callback_data=f'extend_key {key.id}')
             buttons.append(button)
-        button = InlineKeyboardButton(text=f'Новый ключ',
-                                      callback_data='buy_new_key')
-        buttons.append(button)
-        ikb.add(*buttons)
+    button = InlineKeyboardButton(text=f'Новый ключ',
+                                  callback_data='buy_new_key')
+    buttons.append(button)
+    ikb.add(*buttons)
 
     return ikb

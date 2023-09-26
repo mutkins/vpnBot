@@ -1,5 +1,5 @@
 import logging
-
+from datetime import datetime, date, timedelta
 from aiogram import types
 from handlers.other.common import reset_state
 from aiogram.dispatcher import FSMContext
@@ -7,10 +7,10 @@ from aiogram.types import InputFile
 from keyboards.keyboards import *
 from handlers.user.utils import *
 from db.users import get_user_by_chat_id, add_user
-from handlers.user.utils import add_new_key
+from handlers.user.utils import add_new_key, get_price_by_period, get_server_by_name
 from db.access_keys import do_user_have_active_trial
-from handlers.user.payment import send_subscribe_info
-
+from handlers.user.payment import send_invoice
+from config import TRIAL_KEY_LOCATION, TRIAL_SERVER_NAME
 
 logging.basicConfig(filename="main.log", level=logging.INFO, filemode="w",
                     format="%(asctime)s %(levelname)s %(message)s")
@@ -40,7 +40,8 @@ async def start_trial(call: types.CallbackQuery, state: FSMContext):
         if do_user_have_active_trial(chat_id=call.from_user.id):
             await bot.send_message(text='Вы уже активировали пробный период. Узнать свой ключ и срок действия: /my_keys', chat_id=call.from_user.id)
         else:
-            await add_new_key(name=call.from_user.username, chat_id=call.from_user.id, is_trial=True)
+            await add_new_key(name=call.from_user.username, chat_id=call.from_user.id, is_trial=True,
+                              server_location=TRIAL_KEY_LOCATION, server_name=TRIAL_SERVER_NAME, expired=datetime.now() + timedelta(days=30))
             await send_instructions(chat_id=call.from_user.id)
             await send_active_keys_by_user(chat_id=call.from_user.id)
     except Exception as e:
@@ -64,7 +65,7 @@ async def get_instructions(message: types.Message):
     if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
         await message.answer()
     try:
-        await send_servers(chat_id=message.from_user.id)
+        await send_instructions(chat_id=message.from_user.id)
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=message.from_user.id)
@@ -81,40 +82,59 @@ async def get_rules(message: types.Message):
         await send_error_msg(chat_id=message.from_user.id)
 
 
-async def sub(message: types.Message):
+async def subscription(message: types.Message):
     # If it's callback - send empty answer to finish callback progress bar
     if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
         await message.answer()
     try:
-        await send_constant_keys(chat_id=message.from_user.id)
+        await send_extend_or_new_key(chat_id=message.from_user.id)
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=message.from_user.id)
 
 
-async def choose_server(message: types.Message):
+async def choose_server_and_rate(message: types.Message):
     # If it's callback - send empty answer to finish callback progress bar
     if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
         await message.answer()
     try:
-        await send_servers(chat_id=message.from_user.id)
+        await send_servers_and_rates(chat_id=message.from_user.id)
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=message.from_user.id)
 
 
-async def subscribe(message: types.Message):
+async def get_new_key(message: types.Message):
     # If it's callback - send empty answer to finish callback progress bar
     if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
         await message.answer()
-    country = message.data.split(' ')[0]
-    period = message.data.split(' ')[1]
-
+    srv_name = message.data.split(' ')[1]
+    srv = await get_server_by_name(srv_name=srv_name)
+    period = message.data.split(' ')[2]
+    price = await get_price_by_period(srv=srv, period=period)
     try:
-        await send_subscribe_info(chat_id=message.from_user.id, period=period, country=country)
+        await send_invoice(chat_id=message.from_user.id, label=price.get('desc_new_key'), price=price.get('price'), payload=f'new_key {srv_name} {period}')
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=message.from_user.id)
+
+
+async def extend_key(message: types.Message):
+    # If it's callback - send empty answer to finish callback progress bar
+    if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
+        await message.answer()
+    key_id = message.data.split(' ')[1]
+    try:
+        await bot.send_message(text=f'Вы хотите продлить ключ {key_id}',
+                               chat_id=message.from_user.id)
+        await send_invoice(chat_id=message.from_user.id, period=period, country=country)
+
+
+
+    except Exception as e:
+        log.error(e)
+        await send_error_msg(chat_id=message.from_user.id)
+
 
 
 async def do_pay(message: types.Message):
