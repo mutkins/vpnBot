@@ -5,6 +5,8 @@ import logging
 from sqlalchemy.types import Boolean
 from db.db_init import Base, engine
 from datetime import datetime, date, timedelta
+from dateutil.relativedelta import relativedelta
+
 
 logging.basicConfig(filename="main.log", level=logging.DEBUG, filemode="w",
                     format="%(asctime)s %(levelname)s %(message)s")
@@ -52,6 +54,21 @@ def add_key_to_db(chat_id, access_key, server_name, is_trial=None, expired=None)
         session.expire_on_commit = False
         try:
             session.add(new_key)
+            session.commit()
+            return None
+        except exc.IntegrityError as e:
+            # return error if something went wrong
+            session.rollback()
+            log.error(e)
+            raise e
+
+
+def extend_key(key_id, period):
+    with Session(engine) as session:
+        session.expire_on_commit = False
+        try:
+            key = session.query(AccessKeys).filter_by(id=key_id).one()
+            key.expired += relativedelta(months=int(period))
             session.commit()
             return None
         except exc.IntegrityError as e:

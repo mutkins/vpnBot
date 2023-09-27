@@ -19,8 +19,6 @@ def register_user_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(choose_rate, lambda callback: callback.data.startswith('prolong_key'))
     dp.register_callback_query_handler(extend_key, lambda callback: callback.data.startswith('extend_key'))
     dp.register_callback_query_handler(get_new_key, lambda callback: callback.data.startswith('get_new_key'))
-
-
     dp.register_message_handler(successful_payment, content_types=ContentType.SUCCESSFUL_PAYMENT)
     dp.register_pre_checkout_query_handler(pre_checkout_query, lambda message: True)
 

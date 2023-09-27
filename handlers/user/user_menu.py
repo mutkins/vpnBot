@@ -137,9 +137,11 @@ async def extend_key(message: types.Message):
         await message.answer()
     key_id = message.data.split(' ')[1]
     period = message.data.split(' ')[2]
-
+    key = get_key_by_id(key_id=key_id)
+    srv = await get_server_by_name(key.server_name)
+    price = await get_price_by_period(srv=srv, period=period)
     try:
-        await send_invoice(chat_id=message.from_user.id, label=price.get('desc_extend_key'), price=price.get('price'), payload=f'new_key {srv_name} {period}')
+        await send_invoice(chat_id=message.from_user.id, label=price.get('desc_extend_key'), price=price.get('price'), payload=f'extend_key {key_id} {period}')
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=message.from_user.id)

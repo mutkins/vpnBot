@@ -5,6 +5,7 @@ import logging
 from Exceptions.Exceptions import *
 from dotenv import load_dotenv
 import os
+from db.access_keys import extend_key
 from db.payments import add_payment_to_db
 from datetime import datetime, date, timedelta
 
@@ -59,7 +60,15 @@ async def pre_checkout_query(pre_checkout_q: types.PreCheckoutQuery):
             await bot.answer_pre_checkout_query(pre_checkout_q.id, ok=False,
                                             error_message='Платеж отменен, попробуйте позже или обратитесь в техподдержку')
     elif pre_checkout_q.invoice_payload.split(' ')[0] == 'extend_key':
-        pass
+        key_id = pre_checkout_q.invoice_payload.split(' ')[1]
+        period = pre_checkout_q.invoice_payload.split(' ')[2]
+        try:
+            extend_key(key_id=key_id, period=period)
+            await bot.answer_pre_checkout_query(pre_checkout_q.id, ok=True)
+        except Exception as e:
+            log.error(f'ERROR with extending key {key_id}. Payment canceled {e}')
+            await bot.answer_pre_checkout_query(pre_checkout_q.id, ok=False,
+                                            error_message='Платеж отменен, попробуйте позже или обратитесь в техподдержку')
     else:
         raise Exception
 
@@ -81,43 +90,3 @@ async def successful_payment(message: types.Message):
 
     await send_instructions(chat_id=message.from_user.id)
     await send_active_keys_by_user(chat_id=message.from_user.id)
-
-
-async def send_subscribe_info_ext(chat_id, key_id):
-    match period:
-        case '1':
-            label = "подписка на 1 месяц"
-        case '3':
-            label = "подписка на 3 месяца"
-        case '6':
-            label = "подписка на 6 месяцев"
-    p = PRICES.get(country).get(f'{period} month')
-    PRICE = types.LabeledPrice(label=label, amount=p * 100)
-
-    receipt = {"items": [
-        {
-            "description": label,
-            "quantity": "1.00",
-            "amount": {
-                "value": f"{p}.00",
-                "currency": "RUB"
-            },
-            "vat_code": 1
-        }
-    ]
-    }
-
-    await bot.send_invoice(chat_id=chat_id,
-                           title="Подписка",
-                           description=f"Vpn ключ, {label}",
-                           provider_token=os.environ.get('PAYMENT_TOKEN'),
-                           currency="rub",
-                           is_flexible=False,
-                           prices=[PRICE],
-                           start_parameter="one-month-subscription",
-                           payload="test-invoice-payload",
-                           need_email=True,
-                           send_email_to_provider=True,
-                           provider_data={
-                               "receipt": receipt
-                           })
