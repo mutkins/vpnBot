@@ -1,10 +1,17 @@
 from aiogram import types
-from create_bot import bot
+from outline.keys import list_all_keys
+from handlers.other.check_permissions import check_admin_rights
+import json
 
 
-async def send_message_to_user(message: types.Message):
-    # Send message to user, which message was forwarded and replied
-    await bot.send_message(chat_id=message.reply_to_message.forward_from.id, text=message.text)
+@check_admin_rights
+async def list_keys(message: types.Message):
+    filename = 'temp/keys_list.txt'
+    with open(filename, mode='w') as file:
+        keys_json = json.dumps(await list_all_keys(), indent=4)
+        file.write(str(keys_json))
+    file = types.InputFile(filename)
+    await message.answer_document(file)
 
 
 
