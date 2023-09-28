@@ -10,7 +10,7 @@ from db.access_keys import *
 import logging
 from Exceptions.Exceptions import *
 from keyboards.keyboards import get_servers_kb, get_keys_by_user_kb, get_extend_period_kb
-from config import SERVERS
+from config import SERVERS, SUPPORT_BOT_LINK
 
 logging.basicConfig(filename="main.log", level=logging.DEBUG, filemode="w",
                     format="%(asctime)s %(levelname)s %(message)s")
@@ -26,8 +26,11 @@ async def send_instructions(chat_id):
                                 '<a href="https://s3.amazonaws.com/outline-releases/client/linux/stable/Outline-Client.AppImage">Linux</a> | '
                                 '<a href="https://itunes.apple.com/app/outline-app/id1356178125">macOS</a>\n'
                                 'Шаг 2: Скопируйте ключ доступа, который начинается с ss:// и вставьте в приложение\n'
-                                'Шаг 3: Подключайтесь и пользуйтесь', chat_id=chat_id, parse_mode='HTML')
-
+                                'Шаг 3: Подключайтесь и пользуйтесь\n'
+                                '<b>ВАЖНО:</b>\n'
+                                '🔑 Одним ключом можно пользоваться на всех ваших устройствах.\n'
+                                '🚫 Нельзя делиться ключом с другими людьми. В противном случае ключ будет заблокирован\n'
+                                , chat_id=chat_id, parse_mode='HTML')
 
 async def send_active_keys_by_user(chat_id):
     keys = get_keys_by_user(chat_id=chat_id, is_active=True)
@@ -38,8 +41,8 @@ async def send_active_keys_by_user(chat_id):
             due = key.expired.strftime('%d.%m.%Y') if key.expired else '♾'
             await bot.send_message(text=f'<code>{key.access_url}</code> | {key_type} | Срок действия {due}', chat_id=chat_id, parse_mode='HTML')
     else:
-        await bot.send_message(text=f'<b>У вас нет активных ключей доступа, приобретите подписку или '
-                                    f'воспользуйтесь пробным периодом</b>', chat_id=chat_id, parse_mode='HTML')
+        await bot.send_message(text=f'У вас нет активных ключей доступа, приобретите подписку или '
+                                    f'воспользуйтесь пробным периодом', chat_id=chat_id, parse_mode='HTML')
 
 
 async def get_keys(message: types.Message, state: FSMContext):
@@ -60,7 +63,7 @@ async def add_new_key(name, chat_id, server_name, expired, is_trial=False):
 
 
 async def send_error_msg(chat_id):
-    await bot.send_message(text=f'<b>Ошибка, попробуйте позже или обратитесь в техподдержку</b>',
+    await bot.send_message(text=f'<b>Ошибка, попробуйте позже или обратитесь в техподдержку {SUPPORT_BOT_LINK}</b>',
                      chat_id=chat_id, parse_mode='HTML')
 
 
@@ -73,7 +76,11 @@ async def send_rules(chat_id):
 
 async def send_servers_and_rates(chat_id):
     file = InputFile("content/servers.png")
-    await bot.send_photo(photo=file, caption= 'Выберите сервер и тариф',
+    await bot.send_photo(photo=file, caption= '<b>Выберите страну для генерации VPN ключа и тариф</b>\n'
+                                              'Обратите внимание:\n'
+                                              '— Российсие сервера актуальны, если вы находитесь за пределами РФ и вам нужен доступ к российским ресурсам\n'
+                                              '— Зарубежные сервера актуальны, если вы находитесь в РФ и вам нужен доступ к зарубежным ресурсам\n'
+                                              'Вы всегда можете вернуться в этот раздел и сформировать ключи для других серверов',
                          chat_id=chat_id, parse_mode='HTML', reply_markup=get_servers_kb())
 
 
