@@ -1,26 +1,12 @@
-from db.access_keys import get_all_active_keys, mark_expired_key
-from datetime import datetime
-from outline.keys import delete_key
-import aioschedule
-import asyncio
 import logging
 from cf_speedtest.cf_speedtest.speedtest import main as speedtest_start
 import requests
 from config import HOSTS_TO_CHECK, PROXY, TIME_TO_CHECK_KEYS
 from handlers.admin.utils import send_error_report
 
-
 logging.basicConfig(filename="main.log", level=logging.INFO, filemode="w",
                     format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("main")
-
-
-async def scheduler():
-    aioschedule.every(4).hours.do(check_vpn)
-    aioschedule.every().day.at(TIME_TO_CHECK_KEYS).do(check_keys)
-    while True:
-        await aioschedule.run_pending()
-        await asyncio.sleep(1)
 
 
 async def check_vpn():
@@ -53,18 +39,3 @@ async def check_vpn():
                     f'average speed {int(speeds["download_speed"]/1000000)}Mb/s / {int(speeds["upload_speed"]/1000000)}Mb/s')
         await send_error_report(f'<b>VPN WARN REPORT</b>\n'
                                 f'average speed {int(speeds["download_speed"]/1000000)}Mb/s / {int(speeds["upload_speed"]/1000000)}Mb/s')
-
-
-async def check_keys():
-    log.info('Time to check expired keys')
-    keys = get_all_active_keys()
-    for key in keys:
-        if key.is_trial and key.expired <= datetime.today().date():
-            log.info(f'key {key.id} is expied. Try to delete it from server and mark as expired in db')
-            try:
-                await delete_key(key_id=key.id)
-                log.info(f'Delete it from server - SUCCESS')
-                mark_expired_key(key_id=key.id)
-                log.info(f'Mark it expired in db - SUCCESS')
-            except Exception as e:
-                log.error(f'ERROR WHEN TRY TO MARK EXPIRED KEY {e}')
