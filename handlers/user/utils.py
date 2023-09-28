@@ -10,7 +10,7 @@ from db.access_keys import *
 import logging
 from Exceptions.Exceptions import *
 from keyboards.keyboards import get_servers_kb, get_keys_by_user_kb, get_extend_period_kb
-from config import SERVERS, SUPPORT_BOT_LINK
+from config import SERVERS, SUPPORT_BOT_USERNAME
 
 logging.basicConfig(filename="main.log", level=logging.DEBUG, filemode="w",
                     format="%(asctime)s %(levelname)s %(message)s")
@@ -31,6 +31,7 @@ async def send_instructions(chat_id):
                                 '🔑 Одним ключом можно пользоваться на всех ваших устройствах.\n'
                                 '🚫 Нельзя делиться ключом с другими людьми. В противном случае ключ будет заблокирован\n'
                                 , chat_id=chat_id, parse_mode='HTML')
+
 
 async def send_active_keys_by_user(chat_id):
     keys = get_keys_by_user(chat_id=chat_id, is_active=True)
@@ -63,8 +64,8 @@ async def add_new_key(name, chat_id, server_name, expired, is_trial=False):
 
 
 async def send_error_msg(chat_id):
-    await bot.send_message(text=f'<b>Ошибка, попробуйте позже или обратитесь в техподдержку {SUPPORT_BOT_LINK}</b>',
-                     chat_id=chat_id, parse_mode='HTML')
+    await bot.send_message(text=f'<b>Ошибка, попробуйте позже или обратитесь в техподдержку {SUPPORT_BOT_USERNAME}</b>',
+                           chat_id=chat_id, parse_mode='HTML')
 
 
 async def send_rules(chat_id):

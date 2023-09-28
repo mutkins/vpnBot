@@ -1,6 +1,6 @@
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, \
     InlineKeyboardButton
-from config import SERVERS
+from config import SERVERS, SUPPORT_BOT_LINK
 from db.access_keys import get_keys_by_user, get_key_by_id
 
 
@@ -15,7 +15,7 @@ def get_main_menu_kb():
     buttons.append(button)
     button = InlineKeyboardButton(text='🔑 Мои ключи', callback_data='my_keys')
     buttons.append(button)
-    button = InlineKeyboardButton(text='🆘 Техподдержка', url='https://t.me/duckySupport_bot')
+    button = InlineKeyboardButton(text='🆘 Техподдержка', url=f'{SUPPORT_BOT_LINK}')
     buttons.append(button)
     ikb.add(*buttons)
     return ikb
