@@ -40,13 +40,13 @@ async def send_active_keys_by_user(chat_id):
         for key in keys:
             key_type = 'Пробный' if key.is_trial else 'Постоянный'
             due = key.expired.strftime('%d.%m.%Y') if key.expired else '♾'
-            await bot.send_message(text=f'<code>{key.access_url}</code> | {key_type} | Срок действия {due}', chat_id=chat_id, parse_mode='HTML')
+            await bot.send_message(text=f'<code>{key.access_url}</code> | Ключ №{key.id} | {key_type} | Срок действия {due}', chat_id=chat_id, parse_mode='HTML')
     else:
         await bot.send_message(text=f'У вас нет активных ключей доступа, приобретите подписку или '
                                     f'воспользуйтесь пробным периодом', chat_id=chat_id, parse_mode='HTML')
 
 
-async def get_keys(message: types.Message, state: FSMContext):
+async def get_keys(message: types.Message):
     await send_instructions(chat_id=message.from_user.id)
 
 

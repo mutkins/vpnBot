@@ -64,3 +64,17 @@ def get_keys_by_user_kb(chat_id):
     ikb.add(*buttons)
 
     return ikb
+
+
+def get_extend_kb(key_id):
+    ikb = InlineKeyboardMarkup(row_width=1)
+    button = InlineKeyboardButton('Продлить', callback_data=f'prolong_key {key_id}')
+    ikb.add(button)
+    return ikb
+
+
+def get_new_key_kb():
+    ikb = InlineKeyboardMarkup(row_width=1)
+    button = InlineKeyboardButton(text=f'Новый ключ', callback_data='buy_new_key')
+    ikb.add(button)
+    return ikb

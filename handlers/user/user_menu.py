@@ -124,6 +124,7 @@ async def choose_rate(message: types.Message):
     if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
         await message.answer()
     key_id = message.data.split(' ')[1]
+    # Добавить сюда проверку на то, что ключ не бесконечный
     try:
         await send_rates(chat_id=message.from_user.id, key_id=key_id)
     except Exception as e:
