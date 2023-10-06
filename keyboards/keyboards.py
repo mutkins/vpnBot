@@ -51,7 +51,7 @@ def get_extend_period_kb(key, srv):
 def get_keys_by_user_kb(chat_id):
     ikb = InlineKeyboardMarkup(row_width=1)
     buttons = []
-    keys = get_keys_by_user(chat_id=chat_id, is_trial=False)
+    keys = get_keys_by_user(chat_id=chat_id, is_trial=False, is_active=True)
     if bool(keys.first()):
         for key in keys:
             due = key.expired.strftime('%d.%m.%Y') if key.expired else '♾'

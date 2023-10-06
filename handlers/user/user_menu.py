@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, date, timedelta
+from dateutil.relativedelta import relativedelta
 from aiogram import types
 from handlers.other.common import reset_state
 from aiogram.dispatcher import FSMContext
@@ -41,7 +42,7 @@ async def start_trial(call: types.CallbackQuery, state: FSMContext):
             await bot.send_message(text='Вы уже активировали пробный период. Узнать свой ключ и срок действия: /my_keys', chat_id=call.from_user.id)
         else:
             await add_new_key(name=call.from_user.username, chat_id=call.from_user.id, is_trial=True,
-                              server_name=TRIAL_SERVER_NAME, expired=datetime.now() + timedelta(days=30))
+                              server_name=TRIAL_SERVER_NAME, expired=datetime.now() + relativedelta(months=1))
             await send_instructions(chat_id=call.from_user.id)
             await send_active_keys_by_user(chat_id=call.from_user.id)
     except Exception as e:

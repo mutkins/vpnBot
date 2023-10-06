@@ -95,7 +95,8 @@ async def send_rates(chat_id, key_id):
 
 async def send_extend_or_new_key(chat_id):
     file = InputFile("content/servers.png")
-    await bot.send_photo(photo=file, caption='Выберите ключ, который хотите продлить, или оформите новый',
+    await bot.send_photo(photo=file, caption='Выберите ключ, который хотите продлить, или оформите новый\n'
+                                             '<i>Примечание: вы не можете продлить пробный ключ. Если он истек - нужно выпустить новый, постоянный</i>',
                          chat_id=chat_id, parse_mode='HTML', reply_markup=get_keys_by_user_kb(chat_id=chat_id))
 
 

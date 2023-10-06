@@ -8,6 +8,7 @@ import os
 from db.access_keys import extend_key
 from db.payments import add_payment_to_db
 from datetime import datetime, date, timedelta
+from dateutil.relativedelta import relativedelta
 
 load_dotenv()
 logging.basicConfig(filename="main.log", level=logging.INFO, filemode="w",
@@ -53,7 +54,7 @@ async def pre_checkout_query(pre_checkout_q: types.PreCheckoutQuery):
         server_name = pre_checkout_q.invoice_payload.split(' ')[1]
         period = pre_checkout_q.invoice_payload.split(' ')[2]
         try:
-            await add_new_key(name=pre_checkout_q.from_user.username, chat_id=pre_checkout_q.from_user.id, is_trial=False, server_name=server_name, expired=datetime.now() + timedelta(days=int(period)*30))
+            await add_new_key(name=pre_checkout_q.from_user.username, chat_id=pre_checkout_q.from_user.id, is_trial=False, server_name=server_name, expired=datetime.now() + relativedelta(months=int(period)))
             await bot.answer_pre_checkout_query(pre_checkout_q.id, ok=True)
         except Exception as e:
             log.error(f'ERROR with adding new key. Payment canceled {e}')
