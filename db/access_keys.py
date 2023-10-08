@@ -105,11 +105,16 @@ def do_user_have_active_trial(chat_id):
     return False
 
 
-def get_all_active_keys():
+def get_all_keys(is_active):
     with Session(engine) as session:
         # session.expire_on_commit = False
         try:
-            return session.query(AccessKeys).filter_by(is_active=True)
+            res = session.query(AccessKeys)
+            if is_active is None:
+                pass
+            else:
+                res = res.filter_by(is_active=is_active)
+            return res
         except exc.IntegrityError as e:
             # return error if something went wrong
             session.rollback()

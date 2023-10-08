@@ -1,7 +1,7 @@
 import logging
 from cf_speedtest.cf_speedtest.speedtest import main as speedtest_start
 import requests
-from config import HOSTS_TO_CHECK, PROXY, TIME_TO_CHECK_KEYS
+from config import HOSTS_TO_CHECK, PROXY
 from handlers.admin.utils import send_error_report
 
 logging.basicConfig(filename="main.log", level=logging.INFO, filemode="w",

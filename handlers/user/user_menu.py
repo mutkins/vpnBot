@@ -127,11 +127,14 @@ async def choose_rate(message: types.Message):
         await message.answer()
     key_id = message.data.split(' ')[1]
     # Добавить сюда проверку на то, что ключ не бесконечный
-    try:
-        await send_rates(chat_id=message.from_user.id, key_id=key_id)
-    except Exception as e:
-        log.error(e)
-        await send_error_msg(chat_id=message.from_user.id)
+    if get_key_by_id(key_id) == '':
+        await message.answer('Вы хотите продлить бесконечный ключ?')
+    else:
+        try:
+            await send_rates(chat_id=message.from_user.id, key_id=key_id)
+        except Exception as e:
+            log.error(e)
+            await send_error_msg(chat_id=message.from_user.id)
 
 
 async def extend_key(message: types.Message, state: FSMContext):
