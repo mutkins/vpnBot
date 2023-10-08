@@ -1,5 +1,10 @@
 from outline.api_client import send_request
 import json
+import logging
+
+logging.basicConfig(filename="main.log", level=logging.INFO, filemode="w",
+                    format="%(asctime)s %(levelname)s %(message)s")
+log = logging.getLogger("main")
 
 
 async def delete_key(key_id):
@@ -11,7 +16,9 @@ async def list_all_keys():
 
 
 async def add_key_to_srv(name):
+    log.info('add_key_to_srv')
     key_id = await create_new_key()
+    log.info(f'success, key_id = {key_id}')
     await rename_key(name, key_id)
     return await get_key_by_id(key_id)
 

@@ -13,7 +13,7 @@ log = logging.getLogger("main")
 
 load_dotenv()
 header = {"Content-Type": "application/json"}
-base_url = os.environ.get('Finland_1_API_URL')
+base_url = os.environ.get('FINLAND_1_API_URL')
 
 
 def send_request(method='get', params=None, path='access-keys/', data=None):
