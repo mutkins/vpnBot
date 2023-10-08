@@ -9,7 +9,7 @@ from keyboards.keyboards import *
 from handlers.user.utils import *
 from db.users import get_user_by_chat_id, add_user
 from handlers.user.utils import add_new_key, get_price_by_period, get_server_by_name
-from db.access_keys import do_user_have_active_trial, get_key_by_id
+from db.access_keys import do_user_have_active_trial, get_key_by_id, activate_key
 from handlers.user.payment import send_invoice
 from config import TRIAL_SERVER_NAME
 
@@ -41,8 +41,9 @@ async def start_trial(call: types.CallbackQuery, state: FSMContext):
         if do_user_have_active_trial(chat_id=call.from_user.id):
             await bot.send_message(text='Вы уже активировали пробный период. Узнать свой ключ и срок действия: /my_keys', chat_id=call.from_user.id)
         else:
-            await add_new_key(name=call.from_user.username, chat_id=call.from_user.id, is_trial=True,
+            key_id = await add_new_key(name=call.from_user.username, chat_id=call.from_user.id, is_trial=True,
                               server_name=TRIAL_SERVER_NAME, expired=datetime.now() + relativedelta(months=1))
+            activate_key(key_id=key_id)
             await send_instructions(chat_id=call.from_user.id)
             await send_active_keys_by_user(chat_id=call.from_user.id)
     except Exception as e:
@@ -105,7 +106,7 @@ async def choose_server_and_rate(message: types.Message):
         await send_error_msg(chat_id=message.from_user.id)
 
 
-async def get_new_key(message: types.Message):
+async def get_new_key(message: types.Message, state: FSMContext):
     # If it's callback - send empty answer to finish callback progress bar
     if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
         await message.answer()
@@ -114,7 +115,7 @@ async def get_new_key(message: types.Message):
     period = message.data.split(' ')[2]
     price = await get_price_by_period(srv=srv, period=period)
     try:
-        await send_invoice(chat_id=message.from_user.id, label=price.get('desc_new_key'), price=price.get('price'), payload=f'new_key {srv_name} {period}')
+        await send_invoice(chat_id=message.from_user.id, label=price.get('desc_new_key'), price=price.get('price'), payload=f'new_key {srv_name} {period}',state=state)
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=message.from_user.id)
@@ -133,7 +134,7 @@ async def choose_rate(message: types.Message):
         await send_error_msg(chat_id=message.from_user.id)
 
 
-async def extend_key(message: types.Message):
+async def extend_key(message: types.Message, state: FSMContext):
     # If it's callback - send empty answer to finish callback progress bar
     if str(type(message)) == "<class 'aiogram.types.callback_query.CallbackQuery'>":
         await message.answer()
@@ -143,7 +144,7 @@ async def extend_key(message: types.Message):
     srv = await get_server_by_name(key.server_name)
     price = await get_price_by_period(srv=srv, period=period)
     try:
-        await send_invoice(chat_id=message.from_user.id, label=price.get('desc_extend_key'), price=price.get('price'), payload=f'extend_key {key_id} {period}')
+        await send_invoice(chat_id=message.from_user.id, label=price.get('desc_extend_key'), price=price.get('price'), payload=f'extend_key {key_id} {period}', state=state)
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=message.from_user.id)

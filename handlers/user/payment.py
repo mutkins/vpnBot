@@ -1,14 +1,17 @@
 from aiogram import types
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.dispatcher import FSMContext
 from create_bot import bot
 from handlers.user.utils import add_new_key, send_active_keys_by_user, send_instructions
 import logging
 from Exceptions.Exceptions import *
 from dotenv import load_dotenv
 import os
-from db.access_keys import extend_key
+from db.access_keys import extend_key, activate_key
 from db.payments import add_payment_to_db
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
+
 
 load_dotenv()
 logging.basicConfig(filename="main.log", level=logging.INFO, filemode="w",
@@ -16,7 +19,12 @@ logging.basicConfig(filename="main.log", level=logging.INFO, filemode="w",
 log = logging.getLogger("main")
 
 
-async def send_invoice(chat_id, label, price, payload):
+# class PaymentFSM(StatesGroup):
+#     waiting_pre_checkout_query = State()
+#     waiting_successful_payment = State()
+
+
+async def send_invoice(chat_id, label, price, payload, state):
 
     PRICE = types.LabeledPrice(label=label, amount=price * 100)
 
@@ -47,14 +55,17 @@ async def send_invoice(chat_id, label, price, payload):
                            provider_data={
                                "receipt": receipt
                            })
+    # await PaymentFSM.waiting_pre_checkout_query.set()
 
 
-async def pre_checkout_query(pre_checkout_q: types.PreCheckoutQuery):
+async def pre_checkout_query(pre_checkout_q: types.PreCheckoutQuery, state: FSMContext):
     if pre_checkout_q.invoice_payload.split(' ')[0] == 'new_key':
         server_name = pre_checkout_q.invoice_payload.split(' ')[1]
         period = pre_checkout_q.invoice_payload.split(' ')[2]
         try:
-            await add_new_key(name=pre_checkout_q.from_user.username, chat_id=pre_checkout_q.from_user.id, is_trial=False, server_name=server_name, expired=datetime.now() + relativedelta(months=int(period)))
+            key_id = await add_new_key(name=pre_checkout_q.from_user.username, chat_id=pre_checkout_q.from_user.id, is_trial=False, server_name=server_name, expired=datetime.now() + relativedelta(months=int(period)))
+            async with state.proxy() as data:
+                data['key_id'] = key_id
             await bot.answer_pre_checkout_query(pre_checkout_q.id, ok=True)
         except Exception as e:
             log.error(f'ERROR with adding new key. Payment canceled {e}')
@@ -74,11 +85,13 @@ async def pre_checkout_query(pre_checkout_q: types.PreCheckoutQuery):
         raise Exception
 
 
-async def successful_payment(message: types.Message):
+async def successful_payment(message: types.Message, state: FSMContext):
     log.info("SUCCESSFUL PAYMENT:")
     payment_info = message.successful_payment.to_python()
     for k, v in payment_info.items():
         log.info(f"{k} = {v}")
+    async with state.proxy() as data:
+        key_id = data['key_id']
     add_payment_to_db(
         chat_id=message.from_user.id,
         currency=payment_info.get('currency'),
@@ -87,7 +100,10 @@ async def successful_payment(message: types.Message):
         telegram_payment_charge_id=payment_info.get('telegram_payment_charge_id'),
         provider_payment_charge_id=payment_info.get('provider_payment_charge_id'),
         email=payment_info.get('order_info').get('email'),
-        phone=payment_info.get('order_info').get('phone'))
-
+        phone=payment_info.get('order_info').get('phone'),
+        key_id=key_id
+    )
+    activate_key(key_id=key_id)
+    log.info(f'Key {key_id} succesfully activated')
     await send_instructions(chat_id=message.from_user.id)
     await send_active_keys_by_user(chat_id=message.from_user.id)

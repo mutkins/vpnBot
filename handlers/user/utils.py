@@ -53,8 +53,9 @@ async def get_keys(message: types.Message):
 async def add_new_key(name, chat_id, server_name, expired, is_trial=False):
     access_key = await add_key_to_srv(name=name)
     try:
-        add_key_to_db(chat_id=chat_id, access_key=access_key, is_trial=is_trial,
+        key_id = add_key_to_db(chat_id=chat_id, access_key=access_key, is_trial=is_trial,
                       server_name=server_name, expired=expired)
+        return key_id
     except Exception as e:
         log.error(e)
         log.error('Cause ERROR with addind key to db, DELETE key from server')

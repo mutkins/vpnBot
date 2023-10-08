@@ -24,9 +24,10 @@ class Payments(Base):
     provider_payment_charge_id = Column(String(250))
     date_created = Column(DateTime)
     chat_id = Column(String(250), ForeignKey("Users.chat_id"), unique=False)
+    key_id = Column(String(250), ForeignKey("AccessKeys.id"))
 
     def __init__(self, chat_id, currency, total_amount, invoice_payload, telegram_payment_charge_id,
-                 provider_payment_charge_id, email=None, phone=None):
+                 provider_payment_charge_id, key_id, email=None, phone=None):
         self.id = str(uuid.uuid4())
         self.currency = currency
         self.total_amount = total_amount
@@ -37,10 +38,11 @@ class Payments(Base):
         self.phone = phone
         self.date_created = datetime.now()
         self.chat_id = chat_id
+        self.key_id = key_id
 
 
 def add_payment_to_db(chat_id, currency, total_amount, invoice_payload, telegram_payment_charge_id,
-                 provider_payment_charge_id, email=None, phone=None):
+                 provider_payment_charge_id, key_id, email=None, phone=None, ):
     new_payment = Payments(
         chat_id=chat_id,
         currency=currency,
@@ -49,7 +51,8 @@ def add_payment_to_db(chat_id, currency, total_amount, invoice_payload, telegram
         telegram_payment_charge_id=telegram_payment_charge_id,
         provider_payment_charge_id=provider_payment_charge_id,
         email=email,
-        phone=phone
+        phone=phone,
+        key_id=key_id
     )
 
     with Session(engine) as session:

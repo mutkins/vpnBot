@@ -40,7 +40,7 @@ class AccessKeys(Base):
         self.date_created = datetime.now()
         self.is_trial = is_trial
         self.expired = expired # datetime.now() + timedelta(days=30) if is_trial else None
-        self.is_active = True
+        self.is_active = False
         self.access_url = access_url
 
 
@@ -55,7 +55,7 @@ def add_key_to_db(chat_id, access_key, server_name, is_trial=None, expired=None)
         try:
             session.add(new_key)
             session.commit()
-            return None
+            return new_key.id
         except exc.IntegrityError as e:
             # return error if something went wrong
             session.rollback()
@@ -135,6 +135,21 @@ def mark_expired_key(key_id):
         try:
             key = session.query(AccessKeys).filter_by(id=key_id).one()
             key.is_active = False
+            session.commit()
+            return None
+        except exc.IntegrityError as e:
+            # return error if something went wrong
+            session.rollback()
+            log.error(e)
+            raise e
+
+
+def activate_key(key_id):
+    with Session(engine) as session:
+        session.expire_on_commit = False
+        try:
+            key = session.query(AccessKeys).filter_by(id=key_id).one()
+            key.is_active = True
             session.commit()
             return None
         except exc.IntegrityError as e:
