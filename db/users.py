@@ -22,6 +22,7 @@ class Users(Base):
 
 
 def add_user(chat_id, username=None):
+    log.info('add_user')
     new_user = Users(chat_id=chat_id, username=username)
 
     with Session(engine) as session:
@@ -38,6 +39,7 @@ def add_user(chat_id, username=None):
 
 
 def get_user_by_chat_id(chat_id):
+    log.info('get_user_by_chat_id')
     with Session(engine) as session:
         # session.expire_on_commit = False
         try:

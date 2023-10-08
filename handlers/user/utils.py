@@ -18,6 +18,7 @@ log = logging.getLogger("main")
 
 
 async def send_instructions(chat_id):
+    log.info('send_instructions')
     file = InputFile("content/manual.png")
     await bot.send_photo(photo=file, caption='Шаг 1: Скачайте приложение\n'
                                 '<a href="https://play.google.com/store/apps/details?id=org.outline.android.client">Android</a> | '
@@ -34,6 +35,7 @@ async def send_instructions(chat_id):
 
 
 async def send_active_keys_by_user(chat_id):
+    log.info('send_active_keys_by_user')
     keys = get_keys_by_user(chat_id=chat_id, is_active=True)
     if bool(keys.first()):
         await bot.send_message(text=f'Ваши активные ключи доступа:', chat_id=chat_id, parse_mode='HTML')
@@ -51,6 +53,7 @@ async def get_keys(message: types.Message):
 
 
 async def add_new_key(name, chat_id, server_name, expired, is_trial=False):
+    log.info('do_user_have_active_trial')
     access_key = await add_key_to_srv(name=name)
     try:
         key_id = add_key_to_db(chat_id=chat_id, access_key=access_key, is_trial=is_trial,
@@ -65,6 +68,7 @@ async def add_new_key(name, chat_id, server_name, expired, is_trial=False):
 
 
 async def send_error_msg(chat_id):
+    log.info('send_error_msg')
     await bot.send_message(text=f'<b>Ошибка, попробуйте позже или обратитесь в техподдержку {SUPPORT_BOT_USERNAME}</b>',
                            chat_id=chat_id, parse_mode='HTML')
 

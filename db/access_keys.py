@@ -97,6 +97,7 @@ def get_keys_by_user(chat_id, is_active=None, is_trial=None):
 
 
 def do_user_have_active_trial(chat_id):
+    log.info('do_user_have_active_trial')
     keys = get_keys_by_user(chat_id=chat_id)
     if bool(keys.first()):
         for key in keys:
@@ -150,6 +151,7 @@ def mark_expired_key(key_id):
 
 
 def activate_key(key_id):
+    log.info('activate_key')
     with Session(engine) as session:
         session.expire_on_commit = False
         try:
