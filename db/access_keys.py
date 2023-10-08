@@ -79,14 +79,17 @@ def extend_key(key_id, period):
 
 
 def get_keys_by_user(chat_id, is_active=None, is_trial=None):
+    log.info('get_keys_by_user')
     with Session(engine) as session:
         # session.expire_on_commit = False
         try:
             res = session.query(AccessKeys).filter_by(chat_id=chat_id)
+
             if is_active is not None:
                 res = res.filter_by(is_active=is_active)
             if is_trial is not None:
                 res = res.filter_by(is_trial=is_trial)
+            log.info(f'res = {res}')
             return res
 
         except exc.IntegrityError as e:
