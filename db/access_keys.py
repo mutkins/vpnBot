@@ -105,7 +105,9 @@ def do_user_have_active_trial(chat_id):
     if bool(keys.first()):
         for key in keys:
             if key.is_trial:
+                log.info('he does')
                 return True
+    log.info('he doesnt')
     return False
 
 
