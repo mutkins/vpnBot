@@ -3,8 +3,6 @@ pipeline {
     environment {
        tgBot_id = credentials('vpn_bot_id')
        CHAT_ID = credentials('my_chat_id')
-       PAYMENT_TOKEN = credentials('payment_token')
-       Finland_1_API_URL = credentials('Finland_1_API_URL')
     }
     options {
         retry(3) 
