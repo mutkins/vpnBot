@@ -26,3 +26,9 @@ async def add_key(message: types.Message):
                                server_name=TRIAL_SERVER_NAME, expired=None)
     activate_key(key_id=key_id)
     await send_active_keys_by_user(chat_id=message.from_user.id)
+
+
+@check_admin_rights
+async def get_log(message: types.Message):
+    file = types.InputFile('main.log')
+    await message.answer_document(file)
