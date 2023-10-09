@@ -2,10 +2,10 @@ from aiogram import types
 from outline.keys import list_all_keys
 from handlers.other.check_permissions import check_admin_rights
 import json
-from db.users import get_user_by_chat_id, add_user
+from db.users import get_user_by_chat_id, add_user, get_all_users
 from handlers.user.utils import add_new_key, activate_key, send_active_keys_by_user
 from config import TRIAL_SERVER_NAME
-
+from create_bot import bot
 
 @check_admin_rights
 async def list_keys(message: types.Message):
@@ -32,3 +32,11 @@ async def add_key(message: types.Message):
 async def get_log(message: types.Message):
     file = types.InputFile('main.log')
     await message.answer_document(file)
+
+
+@check_admin_rights
+async def send_service_notification(message: types.Message):
+    users = get_all_users()
+    for user in users:
+        await bot.send_message(chat_id=user.chat_id, text='У некоторых пользователей могут наблюдаться проблемы с vpn сервисом.\n'
+                                                          'Скоро всё починим! 🛠️')

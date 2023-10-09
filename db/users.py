@@ -49,3 +49,16 @@ def get_user_by_chat_id(chat_id):
             session.rollback()
             log.error(e)
             raise e
+
+
+def get_all_users():
+    log.info('get_all_users')
+    with Session(engine) as session:
+        # session.expire_on_commit = False
+        try:
+            return session.query(Users).all()
+        except exc.IntegrityError as e:
+            # return error if something went wrong
+            session.rollback()
+            log.error(e)
+            raise e
