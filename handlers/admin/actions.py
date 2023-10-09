@@ -7,6 +7,7 @@ from handlers.user.utils import add_new_key, activate_key, send_active_keys_by_u
 from config import TRIAL_SERVER_NAME
 from create_bot import bot
 
+
 @check_admin_rights
 async def list_keys(message: types.Message):
     filename = 'temp/keys_list.txt'
