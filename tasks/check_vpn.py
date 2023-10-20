@@ -21,7 +21,7 @@ async def check_vpn():
     is_error = False
     for host in HOSTS_TO_CHECK:
         try:
-            r = requests.get(host, proxies=PROXY_DICT)
+            r = requests.get(host, proxies=PROXY_DICT, verify=False)
             log.info(f'Ping to {host}...{r.status_code}')
             report += f'Ping to {host}...{r.status_code}\n'
         except Exception as e:
