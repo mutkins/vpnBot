@@ -30,8 +30,13 @@ async def check_vpn():
             is_error = True
     if is_error:
         await send_error_report(report)
+
     log.info(f'speedtest_start() started')
-    speeds = speedtest_start(proxy=PROXY)
+    try:
+        speeds = speedtest_start(proxy=PROXY)
+    except Exception as e:
+        log.error(e)
+        return
     log.info(f'Download speed: {int(speeds["download_speed"]/1000000)}Mb/s')
     log.info(f'Upload speed: {int(speeds["upload_speed"]/1000000)}Mb/s')
     if speeds['download_speed'] < 10*1000000 or speeds['upload_speed'] < 10*1000000:
