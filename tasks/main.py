@@ -6,7 +6,7 @@ from tasks.check_keys import check_expired_keys, check_inactive_keys
 
 
 async def scheduler():
-    aioschedule.every(2).minutes.do(check_vpn)
+    # aioschedule.every(2).minutes.do(check_vpn)
     aioschedule.every(4).hours.do(check_vpn)
     # aioschedule.every().minute.do(check_expired_keys)
     # aioschedule.every().minute.do(check_inactive_keys)
