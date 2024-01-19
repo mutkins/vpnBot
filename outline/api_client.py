@@ -22,8 +22,10 @@ def send_request(method='get', params=None, path='access-keys/', data=None):
     with Session() as session:
         prepared_request = session.prepare_request(request)
         try:
+            log.info(f'Send Request {prepared_request}')
             r = session.send(request=prepared_request, verify=False)
             r.raise_for_status()
+            log.info(f'Response {r}')
             return r
         except exceptions.RequestException as e:
             log.error(e)
