@@ -7,24 +7,7 @@ pipeline {
        FINLAND_1_API_URL = credentials('FINLAND_1_API_URL')
     }
     options {
-retry(3) {
-
-  try {
-
-      timeout(time: 5, unit: 'MINUTES') {
-
-        // something that can fail
-
-      } // timeout ends
-
-  } catch (FlowInterruptedException e) {
-      // we re-throw as a different error, that would not 
-      // cause retry() to fail (workaround for issue JENKINS-51454)
-      error 'Timeout!'
-
-  } // try ends
-
-} // retry ends
+        retry(3) 
     }
     stages {
        stage('get dependencies'){
