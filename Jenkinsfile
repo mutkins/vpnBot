@@ -7,7 +7,9 @@ pipeline {
        FINLAND_1_API_URL = credentials('FINLAND_1_API_URL')
     }
     options {
-        retry(3) 
+        retry(3) {
+        timeout(time: 5, unit: 'MINUTES')
+        }
     }
     stages {
        stage('get dependencies'){
