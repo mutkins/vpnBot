@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
 from create_bot import bot
-from handlers.user.utils import add_new_key, send_active_keys_by_user, send_instructions
+from handlers.user.utils import add_new_key, send_active_keys_by_user, send_instructions, send_message_for_bot_owner
 import logging
 from Exceptions.Exceptions import *
 from dotenv import load_dotenv
@@ -71,6 +71,8 @@ async def pre_checkout_query(pre_checkout_q: types.PreCheckoutQuery, state: FSMC
             log.error(f'ERROR with adding new key. Payment canceled {e}')
             await bot.answer_pre_checkout_query(pre_checkout_q.id, ok=False,
                                             error_message='Платеж отменен, попробуйте позже или обратитесь в техподдержку')
+            await send_message_for_bot_owner(text=f"НЕУСПЕШНЫЙ ПЛАТЕЖ")
+
     elif pre_checkout_q.invoice_payload.split(' ')[0] == 'extend_key':
         key_id = pre_checkout_q.invoice_payload.split(' ')[1]
         period = pre_checkout_q.invoice_payload.split(' ')[2]
@@ -81,6 +83,7 @@ async def pre_checkout_query(pre_checkout_q: types.PreCheckoutQuery, state: FSMC
             log.error(f'ERROR with extending key {key_id}. Payment canceled {e}')
             await bot.answer_pre_checkout_query(pre_checkout_q.id, ok=False,
                                             error_message='Платеж отменен, попробуйте позже или обратитесь в техподдержку')
+            await send_message_for_bot_owner(text=f"НЕУСПЕШНЫЙ ПЛАТЕЖ")
     else:
         raise Exception
 
@@ -107,3 +110,5 @@ async def successful_payment(message: types.Message, state: FSMContext):
     log.info(f'Key {key_id} succesfully activated')
     await send_instructions(chat_id=message.from_user.id)
     await send_active_keys_by_user(chat_id=message.from_user.id)
+    await send_message_for_bot_owner(text=f"УСПЕШНЫЙ ПЛАТЕЖ. Сумма: {payment_info.get('total_amount')}, e-mail: {payment_info.get('order_info').get('email')}, телефон: {payment_info.get('order_info').get('phone')}, идентификатор ключа: {key_id}")
+

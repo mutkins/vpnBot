@@ -1,3 +1,4 @@
+import os
 from time import strftime
 
 from create_bot import bot
@@ -65,6 +66,16 @@ async def add_new_key(name, chat_id, server_name, expired, is_trial=False):
         await delete_key(access_key.get('id'))
         log.error('Key deleted from server')
         raise e
+
+
+async def send_message_for_bot_owner(text):
+    log.info('send_message_for_bot_owner')
+    try:
+        await bot.send_message(text=text,
+                               chat_id=os.environ.get('my_chat_id'), parse_mode='HTML')
+    except Exception as e:
+        log.error('Error when sending message to owner')
+        log.error(e)
 
 
 async def send_error_msg(chat_id):
