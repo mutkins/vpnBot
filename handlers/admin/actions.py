@@ -3,7 +3,7 @@ from outline.keys import list_all_keys
 from handlers.other.check_permissions import check_admin_rights
 import json
 from db.users import get_user_by_chat_id, add_user, get_all_users
-from handlers.user.utils import add_new_key, activate_key, send_active_keys_by_user
+from handlers.user.utils import add_new_key, activate_key, send_active_keys_by_user, send_message_for_bot_owner
 from config import TRIAL_SERVER_NAME
 from create_bot import bot
 
@@ -33,6 +33,7 @@ async def add_key(message: types.Message):
 async def get_log(message: types.Message):
     file = types.InputFile('main.log')
     await message.answer_document(file)
+    await send_message_for_bot_owner(text=f"Админ запросил лог")
 
 
 @check_admin_rights
