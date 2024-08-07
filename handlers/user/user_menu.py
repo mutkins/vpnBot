@@ -46,6 +46,7 @@ async def start_trial(call: types.CallbackQuery, state: FSMContext):
             activate_key(key_id=key_id)
             await send_instructions(chat_id=call.from_user.id)
             await send_active_keys_by_user(chat_id=call.from_user.id)
+            await send_message_for_bot_owner(text=f"Пользователь {call.from_user.username} получил пробный ключ {TRIAL_SERVER_NAME}")
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=call.from_user.id)
