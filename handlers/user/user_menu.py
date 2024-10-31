@@ -117,6 +117,7 @@ async def get_new_key(message: types.Message, state: FSMContext):
     price = await get_price_by_period(srv=srv, period=period)
     try:
         await send_invoice(chat_id=message.from_user.id, label=price.get('desc_new_key'), price=price.get('price'), payload=f'new_key {srv_name} {period}',state=state)
+        await send_message_for_bot_owner(text=f"Пользователь {message.from_user.username} получил новый ключ на {period} мес. ")
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=message.from_user.id)
@@ -149,6 +150,7 @@ async def extend_key(message: types.Message, state: FSMContext):
     price = await get_price_by_period(srv=srv, period=period)
     try:
         await send_invoice(chat_id=message.from_user.id, label=price.get('desc_extend_key'), price=price.get('price'), payload=f'extend_key {key_id} {period}', state=state)
+        await send_message_for_bot_owner(text=f"Пользователь {message.from_user.username} продлил ключ {key_id} на {period} мес. ")
     except Exception as e:
         log.error(e)
         await send_error_msg(chat_id=message.from_user.id)
