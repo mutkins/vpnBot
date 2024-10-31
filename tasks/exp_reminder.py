@@ -16,4 +16,5 @@ async def send_expired_msg(chat_id, days_to_expire, key_id):
         case _ if days_to_expire <= 0:
             text = f'Ключ {key_id} истек. Оформите новый, чтобы сохранить доступ к любимым ресурсам'
             reply_markup = get_new_key_kb()
+            await send_message_for_bot_owner(text=f"У пользователь chat_id = {chat_id} истек ключ {key_id}")
     await bot.send_message(chat_id=chat_id, text=text, reply_markup=reply_markup)
