@@ -57,4 +57,4 @@ async def send_custom_notification(message: types.Message):
 
 @check_admin_rights
 async def send_custom_notification_test(message: types.Message):
-    await send_message_for_bot_owner(text=message.text)
+    await send_message_for_bot_owner(text=message.html_text.split(maxsplit=1))
