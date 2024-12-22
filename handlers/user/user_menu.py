@@ -25,7 +25,7 @@ async def send_welcome(message: types.Message, state: FSMContext):
         file = InputFile("content/main-menu.png")
         await message.answer_photo(photo=file, caption='Ducky - это просто!\n'
                                                        '- Пробный период на <b>месяц (ого!)</b> в один клик\n'
-                                                       '- Подписка <b>от 100р/мес</b>\n'
+                                                       '- Подписка <b>от 167р/мес</b>\n'
                                                        '', parse_mode='HTML', reply_markup=get_main_menu_kb())
     except Exception as e:
         log.error(e)
