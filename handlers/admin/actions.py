@@ -52,7 +52,7 @@ async def send_service_notification(message: types.Message):
 async def send_custom_notification(message: types.Message):
     users = get_all_users()
     for user in users:
-        await bot.send_message(chat_id=user.chat_id, text=message.html_text)
+        await bot.send_message(chat_id=user.chat_id, text=message.get_args())
 
 
 @check_admin_rights
