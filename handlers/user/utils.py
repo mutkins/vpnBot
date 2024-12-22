@@ -22,17 +22,17 @@ async def send_instructions(chat_id):
     log.info('send_instructions')
     file = InputFile("content/manual.png")
     await bot.send_photo(photo=file, caption='Шаг 1: Скачайте приложение\n'
-                                '<a href="https://play.google.com/store/apps/details?id=org.outline.android.client">Android</a> | '
-                                '<a href="https://itunes.apple.com/app/outline-app/id1356177741">iPhone</a> | '
-                                '<a href="https://s3.amazonaws.com/outline-releases/client/windows/stable/Outline-Client.exe">Windows</a> | '
-                                '<a href="https://s3.amazonaws.com/outline-releases/client/linux/stable/Outline-Client.AppImage">Linux</a> | '
-                                '<a href="https://itunes.apple.com/app/outline-app/id1356178125">macOS</a>\n'
-                                'Шаг 2: Скопируйте ключ доступа, который начинается с ss:// и вставьте в приложение\n'
-                                'Шаг 3: Подключайтесь и пользуйтесь\n'
-                                '<b>ВАЖНО:</b>\n'
-                                '🔑 Одним ключом можно пользоваться на всех ваших устройствах.\n'
-                                '🚫 Нельзя делиться ключом с другими людьми. В противном случае ключ будет заблокирован\n'
-                                , chat_id=chat_id, parse_mode='HTML')
+                                             '<a href="https://play.google.com/store/apps/details?id=org.outline.android.client">Android</a> | '
+                                             '<a href="https://itunes.apple.com/app/outline-app/id1356177741">iPhone</a> | '
+                                             '<a href="https://s3.amazonaws.com/outline-releases/client/windows/stable/Outline-Client.exe">Windows</a> | '
+                                             '<a href="https://s3.amazonaws.com/outline-releases/client/linux/stable/Outline-Client.AppImage">Linux</a> | '
+                                             '<a href="https://itunes.apple.com/app/outline-app/id1356178125">macOS</a>\n'
+                                             'Шаг 2: Скопируйте ключ доступа, который начинается с ss:// и вставьте в приложение\n'
+                                             'Шаг 3: Подключайтесь и пользуйтесь\n'
+                                             '<b>ВАЖНО:</b>\n'
+                                             '🔑 Одним ключом можно пользоваться на всех ваших устройствах.\n'
+                                             '🚫 Нельзя делиться ключом с другими людьми. В противном случае ключ будет заблокирован\n'
+                         , chat_id=chat_id, parse_mode='HTML')
 
 
 async def send_active_keys_by_user(chat_id):
@@ -43,7 +43,9 @@ async def send_active_keys_by_user(chat_id):
         for key in keys:
             key_type = 'Пробный' if key.is_trial else 'Постоянный'
             due = key.expired.strftime('%d.%m.%Y') if key.expired else '♾'
-            await bot.send_message(text=f'<code>{key.access_url}</code> | Ключ №{key.id} | {key_type} | Срок действия {due}', chat_id=chat_id, parse_mode='HTML')
+            await bot.send_message(
+                text=f'<code>{key.access_url}</code> | Ключ №{key.id} | {key_type} | Срок действия {due}',
+                chat_id=chat_id, parse_mode='HTML')
     else:
         await bot.send_message(text=f'У вас нет активных ключей доступа, приобретите подписку или '
                                     f'воспользуйтесь пробным периодом', chat_id=chat_id, parse_mode='HTML')
@@ -55,15 +57,15 @@ async def get_keys(message: types.Message):
 
 async def add_new_key(name, chat_id, server_name, expired, is_trial=False):
     log.info('add_new_key')
-    access_key = await add_key_to_srv(name=name)
+    access_key = await add_key_to_srv(name=name, server_name=server_name)
     try:
         key_id = add_key_to_db(chat_id=chat_id, access_key=access_key, is_trial=is_trial,
-                      server_name=server_name, expired=expired)
+                               server_name=server_name, expired=expired)
         return key_id
     except Exception as e:
         log.error(e)
         log.error('Cause ERROR with addind key to db, DELETE key from server')
-        await delete_key(access_key.get('id'))
+        await delete_key(key_server_id=access_key.get('id'), server_name=server_name)
         log.error('Key deleted from server')
         raise e
 
@@ -93,11 +95,11 @@ async def send_rules(chat_id):
 
 async def send_servers_and_rates(chat_id):
     file = InputFile("content/servers.png")
-    await bot.send_photo(photo=file, caption= '<b>Выберите страну для генерации VPN ключа и тариф</b>\n'
-                                              'Обратите внимание:\n'
-                                              '— Российсие сервера актуальны, если вы находитесь за пределами РФ и вам нужен доступ к российским ресурсам\n'
-                                              '— Зарубежные сервера актуальны, если вы находитесь в РФ и вам нужен доступ к зарубежным ресурсам\n'
-                                              'Вы всегда можете вернуться в этот раздел и сформировать ключи для других серверов',
+    await bot.send_photo(photo=file, caption='<b>Выберите страну для генерации VPN ключа и тариф</b>\n'
+                                             'Обратите внимание:\n'
+                                             '— Российсие сервера актуальны, если вы находитесь за пределами РФ и вам нужен доступ к российским ресурсам\n'
+                                             '— Зарубежные сервера актуальны, если вы находитесь в РФ и вам нужен доступ к зарубежным ресурсам\n'
+                                             'Вы всегда можете вернуться в этот раздел и сформировать ключи для других серверов',
                          chat_id=chat_id, parse_mode='HTML', reply_markup=get_servers_kb())
 
 

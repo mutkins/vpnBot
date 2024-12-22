@@ -5,6 +5,7 @@ pipeline {
        my_chat_id = credentials('my_chat_id')
        PAYMENT_TOKEN = credentials('PAYMENT_TOKEN')
        FINLAND_1_API_URL = credentials('FINLAND_1_API_URL')
+       UAE_1_API_URL = credentials('UAE_1_API_URL')
     }
     options {
         retry(3) 

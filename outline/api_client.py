@@ -13,10 +13,16 @@ log = logging.getLogger("main")
 
 load_dotenv()
 header = {"Content-Type": "application/json"}
-base_url = os.environ.get('FINLAND_1_API_URL')
 
 
-def send_request(method='get', params=None, path='access-keys/', data=None):
+def send_request(server_name, method='get', params=None, path='access-keys/', data=None):
+
+    match server_name:
+        case 'Finland_1':
+            base_url = os.environ.get('FINLAND_1_API_URL')
+        case 'UAE_1':
+            base_url = os.environ.get('UAE_1_API_URL')
+
     url = base_url + path
     request = Request(method=method, url=url, headers=header, params=params, data=data)
     with Session() as session:

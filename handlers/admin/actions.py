@@ -1,4 +1,6 @@
 from aiogram import types
+
+import config
 from outline.keys import list_all_keys
 from handlers.other.check_permissions import check_admin_rights
 import json
@@ -10,12 +12,13 @@ from create_bot import bot
 
 @check_admin_rights
 async def list_keys(message: types.Message):
-    filename = 'temp/keys_list.txt'
-    with open(filename, mode='w') as file:
-        keys_json = json.dumps(await list_all_keys(), indent=4)
-        file.write(str(keys_json))
-    file = types.InputFile(filename)
-    await message.answer_document(file)
+    for server in config.SERVERS:
+        filename = f'temp/keys_list_{server.name}.txt'
+        with open(filename, mode='w') as file:
+            keys_json = json.dumps(await list_all_keys(server_name=server.name), indent=4)
+            file.write(str(keys_json))
+        file = types.InputFile(filename)
+        await message.answer_document(file)
 
 
 @check_admin_rights

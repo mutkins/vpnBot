@@ -17,7 +17,7 @@ async def check_inactive_keys():
     for key in keys:
         log.info(f'key {key.id} is inactive. Try to delete it in outline server')
         try:
-            await delete_key(key_id=key.server_id)
+            await delete_key(key_server_id=key.server_id, server_name=key.server_name)
             log.info(f'deleting successful')
         except Exception as e:
             if e.response.status_code == 404:
@@ -41,7 +41,7 @@ async def expire_key(key):
     try:
         mark_expired_key(key_id=key.id)
         log.info(f'Mark it expired in db - SUCCESS')
-        await delete_key(key_id=key.server_id)
+        await delete_key(key_server_id=key.server_id, server_name=key.server_name)
         log.info(f'Delete it from server - SUCCESS')
     except Exception as e:
         log.error(f'ERROR WHEN TRY TO MARK EXPIRED KEY {e}')
