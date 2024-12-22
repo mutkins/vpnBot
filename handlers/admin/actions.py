@@ -13,9 +13,9 @@ from create_bot import bot
 @check_admin_rights
 async def list_keys(message: types.Message):
     for server in config.SERVERS:
-        filename = f'temp/keys_list_{server.name}.txt'
+        filename = f'temp/keys_list_{server.get("name")}.txt'
         with open(filename, mode='w') as file:
-            keys_json = json.dumps(await list_all_keys(server_name=server.name), indent=4)
+            keys_json = json.dumps(await list_all_keys(server_name=server.get("name")), indent=4)
             file.write(str(keys_json))
         file = types.InputFile(filename)
         await message.answer_document(file)
