@@ -43,5 +43,13 @@ async def get_log(message: types.Message):
 async def send_service_notification(message: types.Message):
     users = get_all_users()
     for user in users:
-        await bot.send_message(chat_id=user.chat_id, text='У некоторых пользователей могут наблюдаться проблемы с vpn сервисом.\n'
-                                                          'Скоро всё починим! 🛠️')
+        await bot.send_message(chat_id=user.chat_id,
+                               text='У некоторых пользователей могут наблюдаться проблемы с vpn сервисом.\n'
+                                    'Скоро всё починим! 🛠️')
+
+
+@check_admin_rights
+async def send_custom_notification(message: types.Message):
+    users = get_all_users()
+    for user in users:
+        await bot.send_message(chat_id=user.chat_id, text=message.text)
