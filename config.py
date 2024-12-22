@@ -44,7 +44,7 @@ SERVERS = [
                 "name_ru": "1 месяц",
                 "desc_new_key": "подписка на 1 месяц",
                 "desc_extend_key": "продление подписки на 1 месяц",
-                "price": 100
+                "price": 200
             },
             {
                 "id": 3,
