@@ -30,7 +30,7 @@ async def check_expired_keys():
     for key in keys:
         diff = (key.expired - datetime.today().date()).days
         if diff <= 3:
-            log.info(f'key {key.id} expiring in diff days, send message')
+            log.info(f'key {key.id} expiring in {diff} days, send message')
             await send_expired_msg(chat_id=key.chat_id, key_id=key.id, days_to_expire=diff)
             if diff <= 0:
                 await expire_key(key)
