@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from aiogram import types
+from dateutil.relativedelta import relativedelta
 
 import config
 from outline.keys import list_all_keys
@@ -27,7 +30,7 @@ async def add_key(message: types.Message):
     if not user:
         add_user(chat_id=message.from_user.id, username=message.from_user.username)
     key_id = await add_new_key(name=message.get_args(), chat_id=message.from_user.id, is_trial=True,
-                               server_name=TRIAL_SERVER_NAME, expired=None)
+                               server_name=TRIAL_SERVER_NAME, expired=datetime.now() + relativedelta(months=3))
     activate_key(key_id=key_id)
     await send_active_keys_by_user(chat_id=message.from_user.id)
 
