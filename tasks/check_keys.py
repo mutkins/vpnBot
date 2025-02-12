@@ -23,8 +23,10 @@ async def check_inactive_keys():
             except Exception as e:
                 if e.response.status_code == 404:
                     log.info(f'Cant find the key {key.id} in outline server. Probably, it was already removed ')
+                log.error(e)
     except Exception as e:
-        log.error("Error whyle task checking inactive_keys")
+        log.error("Error while task checking inactive_keys")
+        log.error(e)
 
 
 async def check_expired_keys():
@@ -40,9 +42,11 @@ async def check_expired_keys():
                     if diff <= 0:
                         await expire_key(key)
             except Exception as e:
-                log.error("Error whyle checking key")
+                log.error("Error while checking expired key")
+                log.error(e)
     except Exception as e:
-        log.error("Error whyle task checking expired_keys")
+        log.error("Error while task checking expired_keys")
+        log.error(e)
 
 
 async def expire_key(key):
