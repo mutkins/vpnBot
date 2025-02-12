@@ -12,28 +12,37 @@ log = logging.getLogger("main")
 
 
 async def check_inactive_keys():
-    log.info('Time to check inactive keys')
-    keys = get_all_keys(is_active=False)
-    for key in keys:
-        log.info(f'key {key.id} is inactive. Try to delete it in outline server')
-        try:
-            await delete_key(key_server_id=key.server_id, server_name=key.server_name)
-            log.info(f'deleting successful')
-        except Exception as e:
-            if e.response.status_code == 404:
-                log.info(f'Cant find the key {key.id} in outline server. Probably, it was already removed ')
+    try:
+        log.info('Time to check inactive keys')
+        keys = get_all_keys(is_active=False)
+        for key in keys:
+            log.info(f'key {key.id} is inactive. Try to delete it in outline server')
+            try:
+                await delete_key(key_server_id=key.server_id, server_name=key.server_name)
+                log.info(f'deleting successful')
+            except Exception as e:
+                if e.response.status_code == 404:
+                    log.info(f'Cant find the key {key.id} in outline server. Probably, it was already removed ')
+    except Exception as e:
+        log.error("Error whyle task checking inactive_keys")
 
 
 async def check_expired_keys():
-    log.info('Time to check expired keys')
-    keys = get_all_keys(is_active=True)
-    for key in keys:
-        diff = (key.expired - datetime.today().date()).days
-        if diff <= 3:
-            log.info(f'key {key.id} expiring in {diff} days, send message')
-            await send_expired_msg(chat_id=key.chat_id, key_id=key.id, days_to_expire=diff)
-            if diff <= 0:
-                await expire_key(key)
+    try:
+        log.info('Time to check expired keys')
+        keys = get_all_keys(is_active=True)
+        for key in keys:
+            try:
+                diff = (key.expired - datetime.today().date()).days
+                if diff <= 3:
+                    log.info(f'key {key.id} expiring in {diff} days, send message')
+                    await send_expired_msg(chat_id=key.chat_id, key_id=key.id, days_to_expire=diff)
+                    if diff <= 0:
+                        await expire_key(key)
+            except Exception as e:
+                log.error("Error whyle checking key")
+    except Exception as e:
+        log.error("Error whyle task checking expired_keys")
 
 
 async def expire_key(key):
