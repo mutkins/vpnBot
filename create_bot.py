@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 from config import PROXY
 storage = MemoryStorage()
 load_dotenv()
-
-bot = Bot(token=os.environ.get('tgBot_id'), proxy=PROXY)
+if PROXY:
+    bot = Bot(token=os.environ.get('tgBot_id'), proxy=PROXY)
+else:
+    bot = Bot(token=os.environ.get('tgBot_id'))
 dp = Dispatcher(bot, storage=storage)
