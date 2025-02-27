@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 load_dotenv()
 SUPPORT_BOT_USERNAME = '@duckySupport_bot'
 SUPPORT_BOT_LINK = 'https://t.me/duckySupport_bot'
-# PROXY = 'socks5://localhost:1080'
-PROXY = None
+PROXY = 'socks5://localhost:1080'
+# PROXY = None
 HOSTS_TO_CHECK = ["https://ya.ru", "https://google.com", "https://www.youtube.com", "https://instagram.com", "https://facebook.com"]
 TIME_TO_CHECK_EXPIRED_KEYS = '12:00'
 TIME_TO_CHECK_INACTIVE_KEYS = '15:00'
